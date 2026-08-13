@@ -1,0 +1,678 @@
+import { Course, RecruitmentNotice, BlogPost, Testimonial, GalleryItem } from '@/types';
+
+export const INITIAL_COURSES: Course[] = [
+  {
+    id: 'course-1',
+    slug: 'fire-guard-course',
+    title: 'Fire Guard Complete Preparation Batch',
+    hindiTitle: 'Comprehensive Written + Physical Ground Coaching',
+    category: 'fire-guard',
+    badge: 'Most Popular',
+    duration: '4 Months (Intensive)',
+    eligibility: '10th / 12th Pass + Physical Standard Qualified',
+    batchTiming: 'Morning: 07:00 AM - 11:30 AM | Evening: 03:30 PM - 07:30 PM',
+    mode: 'Offline + Ground',
+    fees: '₹8,500 / Complete Batch',
+    shortDescription: 'Dedicated coaching for State Fire Guard exams with special focus on written syllabus, physical training ground, and fire equipment mock drills.',
+    description: 'Our Fire Guard Comprehensive Course is engineered specifically for candidates aspiring for Central and State Fire Service Guard posts. The curriculum provides end-to-end guidance including General Knowledge, Fire Safety Basics, Mathematics, Reasoning, and Language comprehension, alongside rigorous daily physical conditioning at our dedicated 400m running ground with ex-fire instructors.',
+    keyFeatures: [
+      'Daily 2 Hours Ground Physical Training (Running, Long Jump, Weight Lifting)',
+      '3 Hours Classroom Sessions with Dedicated Subject Experts',
+      'Weekly Full-Length OMR Mock Tests with All-India Rank Analysis',
+      'Exclusive Fire Drill & Equipment Practical Demonstrations',
+      'Free Study Material & 5000+ Previous Year MCQ Question Bank',
+      'Hostel & Mess Facility for Outstation Students'
+    ],
+    syllabus: [
+      {
+        title: 'Module 1: General Awareness & Current Affairs',
+        topics: ['Indian Polity & Constitution', 'History & Geography of India & States', 'General Science (Physics, Chemistry)', 'National & State Current Affairs (Last 12 Months)']
+      },
+      {
+        title: 'Module 2: Mathematics & Numerical Ability',
+        topics: ['Number Systems & Simplification', 'Percentage, Profit & Loss', 'Time & Work, Speed & Distance', 'Ratio & Proportion, Mensuration']
+      },
+      {
+        title: 'Module 3: Reasoning & Mental Ability',
+        topics: ['Analogies & Series', 'Direction Sense & Blood Relations', 'Coding-Decoding', 'Logical Deductions & Spatial Reasoning']
+      },
+      {
+        title: 'Module 4: Fire Science & Basics of Fire Safety',
+        topics: ['Classification of Fire (Class A, B, C, D, K)', 'Types of Fire Extinguishers & Operations', 'Fire Hydrant & Hose Pipe Basics', 'Emergency Evacuation & First Aid Procedures']
+      }
+    ],
+    physicalRequirements: {
+      height: 'Male: 165 cm (160 cm for ST/Hilly) | Female: 152 cm',
+      chest: 'Male: 81 cm (Unexpanded) - 86 cm (Expanded)',
+      running: 'Male: 1600m in 6.5 minutes | Female: 800m in 4 minutes',
+      weightLift: '60 kg Dummy Carry for 60 meters in 60 seconds',
+      ropeClimb: '3 Meters Vertical Rope Climbing'
+    },
+    upcomingBatchDate: '18 August 2026',
+    totalSeats: 60,
+    availableSeats: 14
+  },
+  {
+    id: 'course-2',
+    slug: 'fireman-preparation',
+    title: 'Fireman Special Selection Batch',
+    hindiTitle: 'Targeted DFS, CISF & State Fireman Exam Coaching',
+    category: 'fireman',
+    badge: 'High Selection Rate',
+    duration: '5 Months',
+    eligibility: '12th Pass (Any Stream) + Fire Training Certificate Preferred',
+    batchTiming: '08:00 AM - 01:00 PM (Daily)',
+    mode: 'Offline + Ground',
+    fees: '₹10,500 / Complete Batch',
+    shortDescription: 'Targeted preparation for Delhi Fire Service (DFS), CISF Fireman, Chandigarh Fire, and State Fire Service Exams.',
+    description: 'Designed by veteran fire officers, this program provides comprehensive preparation covering in-depth syllabus, previous 10 years papers, advanced fire chemistry fundamentals, and specialized physical stamina training.',
+    keyFeatures: [
+      'Comprehensive Coverage for DFS, CISF, State Firemen exams',
+      'Daily Physical Stamina & High Intensity Ground Training',
+      'Subject-wise Printed Booklets & Chapter-wise Tests',
+      'Simulated OMR based Real Exam Simulation Tests',
+      'Individual Performance Tracking & Weak Area Mentorship',
+      'Free Physical Uniform Kit & Running Shoes Guidance'
+    ],
+    syllabus: [
+      {
+        title: 'Section A: General Studies & Science',
+        topics: ['Physics & Combustion Mechanics', 'General Knowledge & State GK', 'Indian Administration & Disaster Management']
+      },
+      {
+        title: 'Section B: Quantitative Aptitude & Reasoning',
+        topics: ['Arithmetic Aptitude', 'Data Interpretation', 'Analytical & Non-Verbal Reasoning']
+      },
+      {
+        title: 'Section C: Language Proficiency',
+        topics: ['English Comprehension & Grammar', 'Hindi Language & Vocabulary']
+      },
+      {
+        title: 'Section D: Fire Fighting Techniques & Safety',
+        topics: ['Fire Chemistry & Tetrahedron of Fire', 'Breathing Apparatus (SCBA) Usage', 'Hazmat & Chemical Hazard Basics', 'Search & Rescue Techniques']
+      }
+    ],
+    physicalRequirements: {
+      height: 'Male: 167 cm (162 cm for Reserved)',
+      chest: '81.5 cm unexpanded, 86.5 cm expanded',
+      running: '1.6 Km running in 6 Minutes',
+      weightLift: '65 kg Weight carrying for 100 meters',
+      longJump: '2.80 meters Long Jump (Clear ditch)'
+    },
+    upcomingBatchDate: '22 August 2026',
+    totalSeats: 50,
+    availableSeats: 9
+  },
+  {
+    id: 'course-3',
+    slug: 'fire-operator-course',
+    title: 'Fire Operator & Heavy Vehicle Batch',
+    hindiTitle: 'Specialized for Heavy Motor Vehicle (HMV) License Holders',
+    category: 'operator',
+    badge: 'Specialized Track',
+    duration: '3.5 Months',
+    eligibility: '10th / 12th Pass with Valid HMV / Heavy Driving License',
+    batchTiming: '09:00 AM - 01:30 PM',
+    mode: 'Offline + Ground',
+    fees: '₹9,000 / Complete Batch',
+    shortDescription: 'Tailored for Heavy Motor Vehicle license holders applying for Fire Driver and Fire Operator posts across Fire Brigades.',
+    description: 'Fire Operator examinations have a dedicated technical syllabus including heavy vehicle maintenance, pump operations, driving trade tests, and road safety regulations in addition to General Awareness and Physical efficiency.',
+    keyFeatures: [
+      'Specialized Pump Operation & Water Tender Mechanics Module',
+      'Vehicle Maintenance, Engine Troubleshooting & Traffic Rules',
+      'Driving Trade Test Guidance & Simulation Drills',
+      'Standard Physical Endurance & Agility Coaching',
+      'Mock Driving & Technical Viva Question Bank'
+    ],
+    syllabus: [
+      {
+        title: 'Module 1: Motor Vehicle Act & Heavy Driving Rules',
+        topics: ['Traffic Signals & Mandatory Road Rules', 'Heavy Vehicle Hydraulics & Braking System', 'Pre-Trip Inspection Protocols']
+      },
+      {
+        title: 'Module 2: Fire Pump & Hydraulics Operations',
+        topics: ['Centrifugal Pump Operations', 'Priming Devices & Pressure Calculation', 'Hydrant Connection & Hose Layouts']
+      },
+      {
+        title: 'Module 3: General Knowledge & Quantitative Ability',
+        topics: ['National & State GK', 'Basic Math for Distance, Speed & Volume Calculation', 'Reasoning Ability']
+      }
+    ],
+    physicalRequirements: {
+      height: '165 cm minimum',
+      chest: '81 cm - 86 cm',
+      running: '1600m in 7 minutes',
+      weightLift: '60 kg lifting for 50m'
+    },
+    upcomingBatchDate: '25 August 2026',
+    totalSeats: 45,
+    availableSeats: 12
+  },
+  {
+    id: 'course-4',
+    slug: 'fire-safety-diploma',
+    title: 'Fire & Safety Sub-Officer & Diploma Prep',
+    hindiTitle: 'Advanced Preparation for Industrial & Airport Fire Officers',
+    category: 'diploma',
+    badge: 'Government & Industrial',
+    duration: '6 Months',
+    eligibility: '12th (Science preferred) or Graduate / ITI / Diploma',
+    batchTiming: '10:00 AM - 03:00 PM',
+    mode: 'Offline + Ground',
+    fees: '₹14,000 / Complete Batch',
+    shortDescription: 'Ideal for candidates preparing for Industrial Safety Officer, Fire Sub-Officer, and Govt Airport/Refinery Fire posts.',
+    description: 'Comprehensive program preparing candidates for high-paying Fire & Industrial Safety posts in Airports (AAI), Refineries (IOCL, ONGC), Metro Rail Corporations, Municipal Fire Brigades, and Multinational Plants.',
+    keyFeatures: [
+      'Industrial Safety Management & Risk Assessment',
+      'National Building Code (NBC) & Fire Act Regulations',
+      'Live Industrial Smoke House & Extinguisher Practical',
+      'Sub-Officer Level Written Examination Syllabus',
+      'Interview Preparation & Group Discussion Sessions'
+    ],
+    syllabus: [
+      {
+        title: 'Part 1: Fire Technology & Equipment Design',
+        topics: ['Fixed Fire Installations (Sprinklers, Deluge, Drenchers)', 'Fire Detection & Alarm Systems', 'Breathing Apparatus Maintenance']
+      },
+      {
+        title: 'Part 2: Industrial Safety & Hazardous Materials',
+        topics: ['Chemical Safety & Hazchem Codes', 'Factory Act & Safety Audit Procedures', 'Disaster & Emergency Response Planning']
+      }
+    ],
+    upcomingBatchDate: '01 September 2026',
+    totalSeats: 40,
+    availableSeats: 18
+  },
+  {
+    id: 'course-5',
+    slug: 'physical-training-intensive',
+    title: 'Exclusive Fire Physical & Ground Training',
+    hindiTitle: 'Daily Morning & Evening Ground Conditioning',
+    category: 'physical',
+    badge: 'Ground Only',
+    duration: '2 to 3 Months',
+    eligibility: 'All candidates appearing for Fire Physical PST / PET',
+    batchTiming: 'Morning 05:30 AM - 08:00 AM | Evening 05:00 PM - 07:30 PM',
+    mode: 'Physical Only',
+    fees: '₹3,500 / Month',
+    shortDescription: 'Dedicated 400m running track, dummy weight lifting, vertical rope climbing, long jump pit under retired NIS coaches.',
+    description: 'Over 60% candidates fail in Fire Recruitment due to strict physical tests (60-65kg human dummy carry, vertical rope climb, and high-speed running). Our specialized academy ground provides 100% simulated test environments.',
+    keyFeatures: [
+      'Daily 400 Meter Running Track Workout with Stamina Building',
+      'Standard 60kg & 65kg Sand Dummy Carry Practice',
+      '3-Meter & 5-Meter Vertical Rope Climbing Racks',
+      'Scientific Diet Plan & Recovery Guidance',
+      'Weekly Timed PST/PET Mock Exam'
+    ],
+    syllabus: [
+      {
+        title: 'Physical Test Modules',
+        topics: ['Running Stamina & Speed Sprint Drills', 'Shoulder & Core Strength for Dummy Carry', 'Upper Body Grip for Rope Climbing', 'Long Jump Technique & Ankle Safety']
+      }
+    ],
+    upcomingBatchDate: 'Every Monday (Rolling Admissions)',
+    totalSeats: 100,
+    availableSeats: 25
+  },
+  {
+    id: 'course-6',
+    slug: 'crash-course-fireman',
+    title: '45-Day Fireman Fast-Track Crash Course',
+    hindiTitle: 'Rapid High-Yield Revision & Mock Test Series',
+    category: 'special',
+    badge: 'Exam-Oriented',
+    duration: '45 Days',
+    eligibility: 'Candidates with upcoming exam dates',
+    batchTiming: '09:00 AM - 04:00 PM (Super Intensive)',
+    mode: 'Offline + Ground',
+    fees: '₹6,000 / Complete Batch',
+    shortDescription: 'Fast-paced revision, 30+ full mock tests, high-yield formula sheets, and target physical tuning before the exam.',
+    description: 'Designed for last-mile revision. Covers high-weightage topics, shortcuts for math/reasoning, quick fire science memory tricks, and daily physical fine-tuning.',
+    keyFeatures: [
+      'Daily 6 Hours Classroom + 2 Hours Ground',
+      'Daily 1 Full-Length Mock Test with Same-Day Solution Discussion',
+      'Rapid Fire GK & Current Affairs Capsules',
+      'Special Focus on Repeated Exam Questions'
+    ],
+    syllabus: [
+      {
+        title: 'Rapid Revision Schedule',
+        topics: ['Fast Track Math & Reasoning Shortcuts', 'Important Fire Safety MCQs & Past Papers', 'Daily Speed Running & Weight Carry Check']
+      }
+    ],
+    upcomingBatchDate: '20 August 2026',
+    totalSeats: 40,
+    availableSeats: 7
+  }
+];
+
+export const INITIAL_RECRUITMENTS: RecruitmentNotice[] = [
+  {
+    id: 'rec-1',
+    title: 'Delhi Fire Service (DFS) - Fire Operator & Fireman Recruitment 2026',
+    department: 'Delhi Subordinate Services Selection Board (DSSSB)',
+    state: 'Delhi (Central / UT)',
+    totalPosts: 706,
+    eligibility: '10th/12th Pass + Valid Heavy Motor Vehicle (HMV) Driving License + Physical Fitness',
+    ageLimit: '18 to 27 Years (Relaxation as per Govt Rules)',
+    salary: 'Pay Level-3 (₹21,700 - ₹69,100 + Allowances)',
+    applicationStartDate: '10 August 2026',
+    lastDate: '15 September 2026',
+    status: 'Active',
+    notificationUrl: '#',
+    applyUrl: '#',
+    brief: 'Official notification released for 706 Fire Operator posts under Delhi Fire Service. Online application through DSSSB portal. Written exam + Driving Skill Test + Physical Endurance Test.',
+    keyDates: [
+      { event: 'Online Application Start', date: '10 Aug 2026' },
+      { event: 'Last Date to Apply Online', date: '15 Sep 2026' },
+      { event: 'Physical Endurance Test (PST/PET)', date: 'Oct - Nov 2026' },
+      { event: 'Written Exam Date', date: 'To be notified' }
+    ]
+  },
+  {
+    id: 'rec-2',
+    title: 'CISF Fireman / Constable (Fire) Bharti 2026',
+    department: 'Central Industrial Security Force (Ministry of Home Affairs)',
+    state: 'All India (Central Govt)',
+    totalPosts: 1149,
+    eligibility: '12th Pass with Science Subject + Physical Standards',
+    ageLimit: '18 to 23 Years',
+    salary: 'Pay Level-3 (₹21,700 - ₹69,100)',
+    applicationStartDate: '25 July 2026',
+    lastDate: '31 August 2026',
+    status: 'Active',
+    notificationUrl: '#',
+    applyUrl: '#',
+    brief: 'CISF Constable Fire male candidates recruitment across all Indian states. 5 Km running in 24 minutes, Height 170 cm, Computer Based Test (CBT).',
+    keyDates: [
+      { event: 'Application Window', date: '25 Jul - 31 Aug 2026' },
+      { event: 'PET / PST Schedule', date: 'September 2026' },
+      { event: 'CBT Exam', date: 'November 2026' }
+    ]
+  },
+  {
+    id: 'rec-3',
+    title: 'Rajasthan Fireman & Assistant Fire Officer (AFO) Vacancy',
+    department: 'RSMSSB (Rajasthan Staff Selection Board)',
+    state: 'Rajasthan',
+    totalPosts: 620,
+    eligibility: '12th Pass with Minimum 6 Months Basic Fire Fighting Training / Diploma',
+    ageLimit: '18 to 40 Years',
+    salary: 'Pay Matrix Level L-5 & L-8',
+    applicationStartDate: '01 September 2026',
+    lastDate: '05 October 2026',
+    status: 'Upcoming',
+    notificationUrl: '#',
+    applyUrl: '#',
+    brief: 'Upcoming recruitment for 550 Fireman and 70 Assistant Fire Officers in Rajasthan Local Self Government Department. Special coaching batch starting at SK Fire Agency.',
+    keyDates: [
+      { event: 'Official Notification Release', date: '28 Aug 2026' },
+      { event: 'Online Registration Start', date: '01 Sep 2026' },
+      { event: 'Written Exam Tentative', date: 'December 2026' }
+    ]
+  },
+  {
+    id: 'rec-4',
+    title: 'Haryana HSSC Fire Operator cum Driver Bharti',
+    department: 'Haryana Staff Selection Commission',
+    state: 'Haryana',
+    totalPosts: 2063,
+    eligibility: '10+2 with Heavy Driving License & Fire Diploma / Basic Training',
+    ageLimit: '18 to 42 Years',
+    salary: '₹19,900 - ₹63,200',
+    applicationStartDate: '15 June 2026',
+    lastDate: '30 July 2026',
+    status: 'Closed',
+    notificationUrl: '#',
+    applyUrl: '#',
+    brief: 'Massive recruitment for Fire Operator cum Drivers across Haryana Municipal Corporations. Written exam results and physical test dates announced.',
+    keyDates: [
+      { event: 'Application Closed', date: '30 Jul 2026' },
+      { event: 'PMT & Driving Test', date: 'August 2026' }
+    ]
+  },
+  {
+    id: 'rec-5',
+    title: 'UP Fire Service Fireman & Guard Direct Recruitment',
+    department: 'Uttar Pradesh Police Recruitment and Promotion Board (UPPRPB)',
+    state: 'Uttar Pradesh',
+    totalPosts: 850,
+    eligibility: '12th Pass from recognized board + Physical criteria',
+    ageLimit: '18 to 22 Years (OBC/SC/ST: 18 to 27 Years)',
+    salary: 'Pay Level-3 (₹21,700 - ₹69,100)',
+    applicationStartDate: '10 September 2026',
+    lastDate: '10 October 2026',
+    status: 'Upcoming',
+    notificationUrl: '#',
+    applyUrl: '#',
+    brief: 'Upcoming 850 Fireman posts in UP Fire Department under UPPRPB. Complete preparation batch available with physical training.',
+    keyDates: [
+      { event: 'Notification Expected', date: 'Early Sep 2026' },
+      { event: 'Exam Date', date: 'January 2027' }
+    ]
+  }
+];
+
+export const INITIAL_BLOGS: BlogPost[] = [
+  {
+    id: 'blog-1',
+    slug: 'how-to-become-a-fire-guard-complete-guide',
+    title: 'How to Become a Fire Guard: Eligibility, Physical Test, Syllabus & Preparation Strategy',
+    hindiTitle: 'Complete Career Roadmap for Aspiring Fire Service Candidates',
+    excerpt: 'A comprehensive career guide for candidates aspiring to become a Fire Guard or Fireman in government and private fire departments. Learn about eligibility, physical endurance tests, and written exam syllabus.',
+    content: `
+# How to Become a Fire Guard: The Ultimate Career & Selection Guide 2026
+
+Becoming a **Fire Guard** or **Fireman** is one of the most prestigious, secure, and physically rewarding career paths in public service. Every year, thousands of vacancies are announced across major government fire authorities such as the **Delhi Fire Service (DFS), CISF Fire Wing, State Fire Brigades, Airport Authority of India (AAI)**, and leading industrial plants.
+
+In this detailed guide, we break down the educational qualifications, physical endurance criteria, written exam syllabus, and top preparation strategies.
+
+---
+
+## 1. Educational Qualifications & Eligibility
+* **Minimum Education**: Must have passed **10th (Matriculation)** or **12th (10+2)** from a recognized educational board.
+* **Fire Safety Training Certificate (Desirable / State-Specific)**: Several state fire exams (such as Rajasthan Fireman) require a **6-month Basic Fire Fighting Training Certificate** or a **1-year Fire & Safety Diploma**.
+* **Heavy Driving License (For Fire Operators & Drivers)**: If applying for the position of Fire Operator or Fire Driver, a valid **Heavy Motor Vehicle (HMV / HTV)** driving license (usually 2-3 years old) is mandatory.
+
+---
+
+## 2. Physical Standards (Physical Standard Test / PST)
+Firefighters must operate in high-risk, intense physical environments. As a result, physical standards are rigorously enforced:
+
+| Measurement Parameter | Male Candidates | Female Candidates |
+|---|---|---|
+| **Minimum Height** | 165 cm (160 cm for Hilly/ST) | 152 cm |
+| **Chest Measurement** | 81 cm (Unexpanded) - 86 cm (Expanded) | Not Applicable (N/A) |
+| **Minimum Body Weight** | At least 50 kg | At least 45 kg |
+| **Visual Acuity (Eyesight)** | 6/6 without glasses (No color blindness) | 6/6 without glasses |
+
+---
+
+## 3. Physical Efficiency Test (PET Criteria)
+The Physical Efficiency Test is designed to test raw endurance, stamina, and functional strength:
+1. **1600m Running Sprint**: 1.6 km completed in 6.0 to 6.5 minutes.
+2. **60kg Dummy Weight Carry**: Carrying a 60 kg to 65 kg sand-filled human dummy over a distance of 50-60 meters within 60 seconds. (This is historically the stage where over 50% of unprepared candidates fail).
+3. **Vertical Rope Climbing**: Climbing a 3-meter or 5-meter vertical rope using hand and leg locking grips.
+4. **Long Jump (Ditch Clearing)**: Clearing a 2.80m to 3.0m obstacle ditch.
+
+> [!TIP]
+> **SK Fire Agency Specialized Ground Training**: At our academy, students train daily on our dedicated 400m track with authentic 60-65kg sand dummies and vertical rope climbing racks under the guidance of NIS-certified coaches.
+
+---
+
+## 4. Written Examination Syllabus
+The written examination typically consists of 100 to 200 Multiple Choice Questions (MCQs):
+* **General Awareness & General Science**: 25-30%
+* **Mathematics & Quantitative Aptitude**: 20%
+* **Reasoning Ability & Mental Aptitude**: 20%
+* **Language Proficiency (English / Hindi)**: 15%
+* **Fire Science & Basic Fire Safety Rules**: 15-25%
+
+---
+
+## 5. Proven Preparation Strategy from SK Fire Agency
+1. **Balance Ground Training with Classroom Theory**: Allocate 2 hours in the morning for physical conditioning and 4 to 5 hours for classroom and concept study.
+2. **Solve 10 Years of Previous Year Question Papers**: Understand the repeated question patterns in fire science and general studies.
+3. **Practice Weekly OMR Mock Tests**: Simulating actual examination hall conditions helps build speed and eliminate negative marking errors.
+4. **Enroll in Structured Coaching**: Join SK Fire Agency's target classroom and physical ground batches to ensure first-attempt success.
+    `,
+    category: 'Guide',
+    author: 'Chief Instructor, SK Fire Agency',
+    publishedAt: '05 August 2026',
+    readTime: '6 min read',
+    tags: ['Fire Guard', 'Eligibility', 'Physical Test', 'How to Become Fireman'],
+    featured: true
+  },
+  {
+    id: 'blog-2',
+    slug: 'fireman-salary-perks-and-career-growth',
+    title: 'Fireman Salary Breakdown 2026: In-Hand Pay, Allowances, Perks & Promotion Channels',
+    hindiTitle: 'Complete Pay Scale, 7th Pay Commission Allowances & Career Hierarchy',
+    excerpt: 'How much does a government Fireman or Fire Operator earn in hand? Explore the detailed 7th Pay Commission salary slip, grade pay, risk allowances, and promotional timeline.',
+    content: `
+# Fireman Salary Structure & Career Growth in India (2026)
+
+For students preparing for government fire department exams, understanding the **in-hand salary, government perks, and career promotion opportunities** is essential for motivation and career planning.
+
+Under the 7th Central Pay Commission (7th CPC), Fireman and Fire Operator posts offer attractive pay scales combined with excellent job security.
+
+---
+
+## 1. Pay Scale Breakdown (Pay Level-3)
+Across most Central and State Fire Services (including Delhi Fire Service and CISF), Fireman posts fall under **Pay Matrix Level-3**.
+
+* **Basic Pay**: ₹21,700 per month
+* **Grade Pay (Equivalent)**: ₹2,000
+* **Pay Band**: PB-1 (₹5,200 - ₹20,200)
+
+### Monthly Gross & In-Hand Salary Calculation
+1. **Basic Pay**: ₹21,700
+2. **Dearness Allowance (DA at 50%)**: ~₹10,850
+3. **House Rent Allowance (HRA - X/Y/Z Cities)**: ₹2,000 to ₹6,500 (27-30% in metropolitan cities like Delhi)
+4. **Transport Allowance (TA)**: ₹2,000 - ₹3,600
+5. **Risk & Hardship Allowance**: ₹1,500 - ₹3,000
+6. **Uniform & Washing Allowance**: ₹10,000 per annum
+
+> **Total Gross Monthly Salary**: **₹38,000 to ₹46,000 / month**  
+> **Net In-Hand Salary (After NPS & PF Deductions)**: **₹33,000 to ₹40,000 / month**
+
+---
+
+## 2. Key Government Perks & Benefits
+* **Government Accommodation**: Free quarters within the fire station campus or generous HRA.
+* **Medical Health Benefits**: Comprehensive coverage under CGHS / State health schemes for the employee and family.
+* **Leave Entitlements**: 20 days Casual Leave (CL) + 30 days Earned Leave (EL) + Special Emergency Rest Leaves.
+* **Gallantry & Bravery Awards**: Eligibility for the prestigious President's Fire Service Medal for Gallantry.
+
+---
+
+## 3. Career Promotion Hierarchy
+With departmental promotional exams (LDC) and service seniority, career advancement is rapid:
+1. **Fireman / Fire Guard** (Entry Level)
+2. **Leading Fireman / Head Constable (Fire)**
+3. **Fire Sub-Officer (FSO)**
+4. **Station Fire Officer (SFO)**
+5. **Assistant Divisional Officer (ADO)**
+6. **Divisional Fire Officer (DO)**
+7. **Chief Fire Officer (CFO)**
+
+With dedicated preparation and performance, candidates entering as Firemen can attain gazetted Station Officer rank within 10 to 15 years.
+    `,
+    category: 'Salary',
+    author: 'Admin SK Fire Agency',
+    publishedAt: '01 August 2026',
+    readTime: '4 min read',
+    tags: ['Fireman Salary', 'Pay Scale', 'Perks', 'Promotion Chart'],
+    featured: false
+  },
+  {
+    id: 'blog-3',
+    slug: 'fire-physical-test-preparation-60kg-dummy-rope-climb',
+    title: 'How to Master the Fire Physical Test: 60kg Dummy Carry & Vertical Rope Climbing Secrets',
+    hindiTitle: 'Mastering the 60kg Sand Dummy Deadlift, 1600m Running & Rope Techniques',
+    excerpt: 'Over 60% of candidates fail the physical endurance test. Learn the proven biomechanical techniques to lift and carry a 60kg dummy in under 60 seconds without back strain.',
+    content: `
+# Mastering the Fire Physical Test: Dummy Carry & Rope Climbing Techniques
+
+While clearing the written examination is critical, the **Physical Efficiency Test (PET)** is where the true selection happens.
+
+Candidates who only focus on running often struggle with the 60kg sand dummy carry and vertical rope climbing. Here are the core biomechanical techniques taught by our chief physical instructors at SK Fire Agency.
+
+---
+
+## 1. 60kg Human Sand Dummy Carry Technique
+In the official exam, candidates must pick up a 60-65kg sand dummy from the ground and sprint 60 meters in under 60 seconds.
+
+### Step-by-Step Lifting Method:
+1. **Lift with Your Legs, Never with Your Lower Back**: Treat the lift like a barbell deadlift. Squat down deep, wrap both arms firmly beneath the center mass of the dummy, and drive through your heels and quadriceps to stand up straight.
+2. **Center of Gravity on the Trapezius Muscle**: Rest the heaviest part of the dummy securely across your upper shoulder and trap muscles, locking it with your opposite arm.
+3. **Take Rapid, Controlled Steps**: Avoid overstriding. Take quick, balanced short steps to maintain forward momentum without shifting the weight.
+
+---
+
+## 2. Vertical Rope Climbing (3m to 5m)
+1. **Use Leg Gripping Locks (J-Hook & S-Lock)**: 80% of climbing force comes from pushing with your legs, not pulling with your arms.
+2. **Lock the Rope Between Shoe Soles**: Clamp the rope securely between your shoes, extend your legs to push your body upwards, and then slide your hands higher.
+3. **Upper Body Grip Conditioning**: Practice pull-ups and dead-hangs daily for 3 sets of 60 seconds.
+
+---
+
+## 3. 1600m Running Endurance Strategy
+* **3 Days/Week Long Slow Distance (LSD)**: Run 5 km at an easy aerobic pace to build cardiovascular lung capacity.
+* **2 Days/Week 400m Interval Sprints**: Run four 400m laps targetting 1 minute 20 seconds per lap with 90 seconds rest.
+* **Hydration & Electrolytes**: Replenish immediately after workouts with electrolyte hydration and protein-rich nutrition.
+    `,
+    category: 'Physical',
+    author: 'NIS Certified Physical Trainer, SK Fire Agency',
+    publishedAt: '28 July 2026',
+    readTime: '5 min read',
+    tags: ['Physical Test', 'Dummy Carry', 'Rope Climbing', 'Running Tips'],
+    featured: true
+  },
+  {
+    id: 'blog-4',
+    slug: 'fire-operator-heavy-driving-trade-test-guide',
+    title: 'Fire Operator Exam & Heavy Vehicle Driving Trade Test: Complete Practical Guide',
+    hindiTitle: 'HMV Driving Skill Test, Centrifugal Pump Mechanics & Technical Viva',
+    excerpt: 'What is tested during the Fire Operator driving trade test and pump operation examination? Learn the 8-shape maneuver, ramp gradient test, and water tender hydraulics.',
+    content: `
+# Fire Operator Heavy Vehicle Driving Trade Test Guide
+
+The Fire Operator role requires rapid, safe maneuvering of heavy fire tenders under emergency conditions, followed by operating high-pressure centrifugal pumps to deliver water and foam at the fire ground.
+
+---
+
+## 1. Key Components of the Driving Trade Test
+1. **Figure '8' and 'S' Shape Driving Tracks**: Maneuvering a 16-tonne water tender through narrow cones forward and reverse without touching markers.
+2. **Ramp Gradient & Incline Test**: Stopping on a 30-degree incline and restarting smoothly without allowing the vehicle to roll backward using clutch and handbrake coordination.
+3. **Parallel & T-Shape Reversing Precision**: Accurate reverse bay parking using side-view mirrors.
+
+---
+
+## 2. Technical Viva Questions to Prepare
+During the technical oral exam, examiners ask:
+* **How does a single-stage vs. multi-stage Centrifugal Fire Pump work?**
+* **What is the function of the Priming Device when drafting water from a static pond or tank?**
+* **Which Foam Branch pipe (FB 5X, FB 10X) is utilized for Class B hydrocarbon fires?**
+* **What is the standard air brake operating pressure in a modern Fire Tender?**
+
+At SK Fire Agency, our students practice hands-on with operational fire pump rigs and heavy vehicle simulators.
+    `,
+    category: 'Exam Pattern',
+    author: 'Ex-Fire Officer, SK Fire Agency',
+    publishedAt: '20 July 2026',
+    readTime: '4 min read',
+    tags: ['Fire Operator', 'Driving Test', 'HMV License', 'Trade Test'],
+    featured: false
+  }
+];
+
+export const INITIAL_TESTIMONIALS: Testimonial[] = [
+  {
+    id: 'test-1',
+    name: 'Vikram Singh Shekhawat',
+    role: 'Selected Fireman (Rank 14)',
+    selectedIn: 'Delhi Fire Service (DSSSB 2024)',
+    batchYear: 'Batch 2023-24',
+    feedback: 'The dedicated 400m track and weekly OMR test series at SK Fire Agency were the biggest reasons for my selection. My dummy carry timing improved from 75s to 48s within two months thanks to the coach\'s deadlift technique.',
+    rating: 5,
+    rollNo: 'DFS-24-8192'
+  },
+  {
+    id: 'test-2',
+    name: 'Rahul Kumar Meena',
+    role: 'Selected Constable (Fire)',
+    selectedIn: 'CISF Fireman Recruitment',
+    batchYear: 'Batch 2024',
+    feedback: 'The fire science lecture notes and general awareness booklets provided by the faculty covered over 80% of the actual exam questions. The campus hostel environment was peaceful and ideal for serious study.',
+    rating: 5,
+    rollNo: 'CISF-24-10492'
+  },
+  {
+    id: 'test-3',
+    name: 'Ajay Sharma',
+    role: 'Selected Fire Operator / Driver',
+    selectedIn: 'Municipal Corporation Fire Brigade',
+    batchYear: 'Batch 2024-25',
+    feedback: 'Hands-on pump operations and heavy vehicle trade test coaching of this caliber is only available at SK Fire Agency in this entire region. Thank you team SK!',
+    rating: 5,
+    rollNo: 'FO-2025-072'
+  },
+  {
+    id: 'test-4',
+    name: 'Sunil Yadav',
+    role: 'Selected Fire Guard',
+    selectedIn: 'State Industrial Security & Fire Force',
+    batchYear: 'Batch 2024',
+    feedback: 'My running stamina was initially weak for the 1600m test. The 5:30 AM endurance workouts transformed my fitness so much that I cleared the 1.6 km run in 5 minutes 45 seconds on test day.',
+    rating: 5,
+    rollNo: 'SISF-FG-9912'
+  }
+];
+
+export const INITIAL_GALLERY: GalleryItem[] = [
+  {
+    id: 'gal-1',
+    title: 'Morning 400m Sprint & Stamina Track Session',
+    category: 'ground',
+    imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&auto=format&fit=crop&q=80',
+    description: 'Students undergoing stamina endurance sprint drills on our dedicated 400m track.',
+    date: 'August 2026'
+  },
+  {
+    id: 'gal-2',
+    title: '60kg Human Dummy Carry Technique Workshop',
+    category: 'ground',
+    imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
+    description: 'Practical training on lifting and balancing standard 60-65kg sand dummies safely.',
+    date: 'August 2026'
+  },
+  {
+    id: 'gal-3',
+    title: 'Classroom Theory & Fire Science Lecture',
+    category: 'classroom',
+    imageUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80',
+    description: 'Smart classroom interactive session on combustion chemistry and building safety codes.',
+    date: 'July 2026'
+  },
+  {
+    id: 'gal-4',
+    title: 'Fire Extinguisher & Live Drill Demonstration',
+    category: 'drills',
+    imageUrl: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&auto=format&fit=crop&q=80',
+    description: 'Live field drill with CO2, DCP and Foam type extinguishers on controlled fires.',
+    date: 'July 2026'
+  },
+  {
+    id: 'gal-5',
+    title: 'Success Celebration & Felicitation of Selected Candidates',
+    category: 'celebration',
+    imageUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&auto=format&fit=crop&q=80',
+    description: 'Honoring our students who cleared Delhi Fire Service & CISF Fireman exams.',
+    date: 'June 2026'
+  },
+  {
+    id: 'gal-6',
+    title: 'Vertical Rope Climbing Practice Pit',
+    category: 'ground',
+    imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
+    description: 'Students mastering J-hook and leg-lock climbing on our 5-meter vertical ropes.',
+    date: 'July 2026'
+  },
+  {
+    id: 'gal-7',
+    title: 'Campus Hostel & Study Library Room',
+    category: 'hostel',
+    imageUrl: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&auto=format&fit=crop&q=80',
+    description: 'Peaceful residential hostel environment with 24x7 study library and hygienic mess.',
+    date: 'June 2026'
+  },
+  {
+    id: 'gal-8',
+    title: 'Weekly OMR Real Exam Simulation Test',
+    category: 'classroom',
+    imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80',
+    description: 'All-India level weekly mock exam conducted under strict examination hall conditions.',
+    date: 'August 2026'
+  }
+];
