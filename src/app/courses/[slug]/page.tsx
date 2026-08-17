@@ -5,7 +5,6 @@ import Link from 'next/link';
 import {
   Clock,
   Calendar,
-  GraduationCap,
   CheckCircle2,
   Users,
   Loader2,
@@ -13,7 +12,8 @@ import {
   PhoneCall,
   MessageCircle,
   ArrowLeft,
-  BookOpen
+  BookOpen,
+  Upload
 } from 'lucide-react';
 import { INITIAL_COURSES } from '@/data/initialData';
 
@@ -25,28 +25,33 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
     fullName: '',
     fatherName: '',
     mobile: '',
+    alternateMobile: '',
     email: '',
     dob: '',
     gender: 'Male',
     qualification: '12th Pass',
     address: '',
-    state: 'Delhi',
+    state: 'Rajasthan',
     city: '',
     hostelRequired: 'No',
+    marksheet10thUrl: '',
+    marksheet12thUrl: '',
+    aadharUrl: '',
     notes: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [leadId, setLeadId] = useState('');
 
   if (!course) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center">
-        <h2 className="text-2xl font-bold text-neutral-800">Course Not Found</h2>
-        <p className="text-sm text-neutral-500 mt-2">The requested course does not exist.</p>
-        <Link href="/courses" className="mt-4 px-6 py-2.5 bg-red-600 text-white rounded-xl font-bold text-xs">
-          Back to Courses
+      <div className="bg-[#f5f4ef] min-h-[60vh] flex flex-col items-center justify-center p-6 text-center text-neutral-900">
+        <h2 className="text-xl sm:text-2xl font-bold">Course Not Found</h2>
+        <p className="text-xs sm:text-sm text-neutral-600 mt-2">The requested course does not exist.</p>
+        <Link href="/courses" className="mt-4 px-5 py-2.5 bg-neutral-900 text-white rounded-xl font-medium text-xs">
+          Back to All Courses
         </Link>
       </div>
     );
@@ -57,6 +62,39 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
       ...prev,
       [e.target.name]: e.target.value
     }));
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'marksheet10thUrl' | 'marksheet12thUrl' | 'aadharUrl') => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    setUploadingField(fieldName);
+    try {
+      const data = new FormData();
+      data.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: data
+      });
+
+      const result = await res.json();
+      if (result.success && (result.imageUrl || result.url)) {
+        const fileUrl = result.imageUrl || result.url;
+        setFormData(prev => ({
+          ...prev,
+          [fieldName]: fileUrl
+        }));
+      } else {
+        alert(result.error || 'Failed to upload document.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Document upload failed.');
+    } finally {
+      setUploadingField(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,94 +124,82 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="bg-[#f5f4ef] min-h-screen text-neutral-900 pb-28">
       
-      {/* Header Banner */}
-      <section className="bg-gradient-to-r from-neutral-950 via-neutral-900 to-red-950 text-white py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          <Link
-            href="/courses"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-red-300 hover:text-white mb-4 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to All Courses</span>
-          </Link>
+      {/* MINIMALIST HEADER */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-8 sm:pt-12 pb-6">
+        <Link
+          href="/courses"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-600 hover:text-neutral-900 mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back to All Courses</span>
+        </Link>
 
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-red-600 text-white">
-              {course.mode}
-            </span>
-            {course.badge && (
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-400 text-neutral-950">
-                ★ {course.badge}
-              </span>
-            )}
-          </div>
-
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+        <div className="flex items-center gap-4">
+          <span className="w-7 sm:w-10 h-[2px] bg-neutral-800 inline-block" />
+          <h1 className="text-2xl sm:text-4xl font-normal tracking-[0.15em] text-neutral-900 uppercase leading-tight">
             {course.title}
           </h1>
-          <p className="text-lg text-red-300 font-semibold mt-2">
-            {course.hindiTitle}
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center gap-6 text-xs sm:text-sm text-neutral-300">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-red-400" />
-              <span>Duration: <strong>{course.duration}</strong></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-amber-400" />
-              <span>Next Batch: <strong>{course.upcomingBatchDate}</strong></span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-green-400" />
-              <span>Seats: <strong>{course.availableSeats} Seats Left</strong></span>
-            </div>
-          </div>
-
         </div>
-      </section>
+        <p className="mt-2 text-neutral-600 text-sm sm:text-base font-normal">
+          {course.hindiTitle}
+        </p>
 
-      {/* Main Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="mt-6 flex flex-wrap items-center gap-4 text-xs font-medium text-neutral-700">
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-xl border border-neutral-200/80 shadow-xs">
+            <Clock className="w-3.5 h-3.5 text-neutral-500" />
+            <span>Duration: <strong>{course.duration}</strong></span>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-xl border border-neutral-200/80 shadow-xs">
+            <Calendar className="w-3.5 h-3.5 text-neutral-500" />
+            <span>Next Batch: <strong>{course.upcomingBatchDate}</strong></span>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-white rounded-xl border border-neutral-200/80 shadow-xs">
+            <Users className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Seats: <strong>{course.availableSeats} Left</strong></span>
+          </div>
+        </div>
+      </div>
+
+      {/* MAIN CONTENT GRID */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Left Col: Course Details, Syllabus, Physical Criteria */}
-          <div className="lg:col-span-7 space-y-8">
+          {/* Left Col: Details, Syllabus, Physical Requirements */}
+          <div className="lg:col-span-7 space-y-6">
             
             {/* Overview */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-sm space-y-4">
-              <h2 className="text-xl font-black text-neutral-900 border-l-4 border-red-600 pl-3">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
+              <h2 className="text-lg font-semibold text-neutral-900 border-b border-neutral-100 pb-3">
                 Course Overview & Objectives
               </h2>
-              <p className="text-sm text-neutral-700 leading-relaxed">
+              <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
                 {course.description}
               </p>
 
               {course.fees && (
-                <div className="p-4 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-between">
+                <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200/80 flex items-center justify-between gap-4">
                   <div>
-                    <span className="text-xs text-neutral-500 font-bold block">Course Fee Structure:</span>
-                    <span className="text-2xl font-black text-red-700">{course.fees}</span>
+                    <span className="text-[11px] text-neutral-500 font-semibold block uppercase tracking-wider">Fee Structure:</span>
+                    <span className="text-xl sm:text-2xl font-bold text-neutral-900">{course.fees}</span>
                   </div>
-                  <span className="text-xs text-neutral-600 bg-white px-3 py-1.5 rounded-lg border border-neutral-200 font-semibold">
-                    All-Inclusive Fee
+                  <span className="text-xs text-neutral-700 bg-white px-3 py-1 rounded-lg border border-neutral-200 font-medium shrink-0">
+                    All-Inclusive
                   </span>
                 </div>
               )}
             </div>
 
             {/* Key Features */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-sm space-y-4">
-              <h3 className="text-xl font-black text-neutral-900 border-l-4 border-red-600 pl-3">
-                Key Highlights of this Batch
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
+              <h3 className="text-lg font-semibold text-neutral-900 border-b border-neutral-100 pb-3">
+                Batch Highlights
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {course.keyFeatures.map((feat, i) => (
-                  <div key={i} className="flex items-start gap-2.5 p-3 rounded-xl bg-neutral-50 border border-neutral-100 text-xs font-semibold text-neutral-800">
-                    <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
+                  <div key={i} className="flex items-start gap-2.5 p-3 rounded-xl bg-neutral-50 border border-neutral-100 text-xs text-neutral-700">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>{feat}</span>
                   </div>
                 ))}
@@ -181,15 +207,15 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
             </div>
 
             {/* Syllabus */}
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-sm space-y-4">
-              <h3 className="text-xl font-black text-neutral-900 border-l-4 border-red-600 pl-3">
-                Detailed Examination Syllabus
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
+              <h3 className="text-lg font-semibold text-neutral-900 border-b border-neutral-100 pb-3">
+                Examination Syllabus
               </h3>
-              <div className="space-y-4 pt-2">
+              <div className="space-y-4">
                 {course.syllabus.map((mod, idx) => (
-                  <div key={idx} className="p-5 rounded-2xl bg-neutral-50 border border-neutral-200/80 space-y-2">
-                    <h4 className="font-extrabold text-sm text-neutral-900 flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-red-600" />
+                  <div key={idx} className="p-4 sm:p-5 rounded-xl bg-neutral-50 border border-neutral-200/70 space-y-2">
+                    <h4 className="font-semibold text-xs sm:text-sm text-neutral-900 flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-neutral-500" />
                       <span>{mod.title}</span>
                     </h4>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-neutral-600 pl-6 list-disc pt-1">
@@ -202,35 +228,29 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
               </div>
             </div>
 
-            {/* Physical Test Standards */}
+            {/* Physical Requirements */}
             {course.physicalRequirements && (
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-sm space-y-4">
-                <h3 className="text-xl font-black text-neutral-900 border-l-4 border-red-600 pl-3">
-                  Physical Test Standards (PST / PET Criteria)
+              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
+                <h3 className="text-lg font-semibold text-neutral-900 border-b border-neutral-100 pb-3">
+                  Physical Test Standards (PST / PET)
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-100">
-                    <span className="text-neutral-400 font-bold block mb-0.5">Height Required</span>
-                    <span className="font-extrabold text-neutral-800">{course.physicalRequirements.height}</span>
+                    <span className="text-neutral-400 font-medium block mb-0.5">Height Required</span>
+                    <span className="font-semibold text-neutral-900">{course.physicalRequirements.height}</span>
                   </div>
                   <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-100">
-                    <span className="text-neutral-400 font-bold block mb-0.5">Chest Expansion</span>
-                    <span className="font-extrabold text-neutral-800">{course.physicalRequirements.chest}</span>
+                    <span className="text-neutral-400 font-medium block mb-0.5">Chest Expansion</span>
+                    <span className="font-semibold text-neutral-900">{course.physicalRequirements.chest}</span>
                   </div>
                   <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-100">
-                    <span className="text-neutral-400 font-bold block mb-0.5">Running Target</span>
-                    <span className="font-extrabold text-red-600">{course.physicalRequirements.running}</span>
+                    <span className="text-neutral-400 font-medium block mb-0.5">Running Target</span>
+                    <span className="font-semibold text-neutral-900">{course.physicalRequirements.running}</span>
                   </div>
                   {course.physicalRequirements.weightLift && (
                     <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-100">
-                      <span className="text-neutral-400 font-bold block mb-0.5">Dummy Weight Carry</span>
-                      <span className="font-extrabold text-red-600">{course.physicalRequirements.weightLift}</span>
-                    </div>
-                  )}
-                  {course.physicalRequirements.ropeClimb && (
-                    <div className="p-3.5 bg-neutral-50 rounded-xl border border-neutral-100">
-                      <span className="text-neutral-400 font-bold block mb-0.5">Vertical Rope Climb</span>
-                      <span className="font-extrabold text-neutral-800">{course.physicalRequirements.ropeClimb}</span>
+                      <span className="text-neutral-400 font-medium block mb-0.5">Dummy Carry</span>
+                      <span className="font-semibold text-neutral-900">{course.physicalRequirements.weightLift}</span>
                     </div>
                   )}
                 </div>
@@ -239,52 +259,46 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
 
           </div>
 
-          {/* Right Col: Direct Registration Form Card */}
+          {/* Right Col: Registration Form */}
           <div className="lg:col-span-5">
-            <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-red-500/20 shadow-xl sticky top-24 space-y-6">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-neutral-200/80 shadow-xs space-y-6">
               
-              <div className="text-center pb-2 border-b border-neutral-100">
-                <span className="text-xs font-black uppercase text-red-600 block">
-                  Online Registration
-                </span>
-                <h3 className="text-2xl font-black text-neutral-900 mt-1">
-                  Apply for this Batch
+              <div className="border-b border-neutral-100 pb-3">
+                <h3 className="text-lg sm:text-xl font-semibold text-neutral-900">
+                  Online Admission Form
                 </h3>
                 <p className="text-xs text-neutral-500 mt-1">
-                  Reserve your seat in <strong>{course.title}</strong>
+                  Submit candidate details for <strong>{course.title}</strong>
                 </p>
               </div>
 
               {isSuccess ? (
                 <div className="py-6 text-center space-y-4">
-                  <div className="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
-                    <CheckCircle className="w-8 h-8" />
+                  <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+                    <CheckCircle className="w-7 h-7" />
                   </div>
-                  <h4 className="text-xl font-black text-neutral-900">
+                  <h4 className="text-lg font-semibold text-neutral-900">
                     Application Submitted!
                   </h4>
                   <p className="text-xs text-neutral-600">
-                    Your Registration ID is: <strong className="font-mono text-red-600 text-sm">{leadId}</strong>
-                  </p>
-                  <p className="text-xs text-neutral-500">
-                    Our academic counselor will contact you to verify your documents and batch timing.
+                    Registration ID: <strong className="font-mono text-neutral-900 text-sm">{leadId}</strong>
                   </p>
 
                   <a
-                    href={`https://wa.me/919876543210?text=Hello%20SK%20Fire%20Agency,%20I%20applied%20for%20${encodeURIComponent(course.title)}%20with%20ID%20${leadId}.`}
+                    href={`https://wa.me/919680505554?text=Hello%20SK%20Fire%20Academy,%20I%20applied%20for%20${encodeURIComponent(course.title)}%20with%20ID%20${leadId}.`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full py-3 bg-green-600 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs rounded-xl flex items-center justify-center gap-2 transition-colors"
                   >
                     <MessageCircle className="w-4 h-4" />
-                    <span>WhatsApp Confirmation</span>
+                    <span>Confirm on WhatsApp</span>
                   </a>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-3.5">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1">
-                      Candidate Full Name *
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                      Full Name *
                     </label>
                     <input
                       type="text"
@@ -292,13 +306,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
-                      placeholder="Your full name"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      placeholder="Candidate's full name"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300/80 text-xs focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Father’s Name *
                     </label>
                     <input
@@ -308,13 +322,13 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                       value={formData.fatherName}
                       onChange={handleChange}
                       placeholder="Father's name"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300/80 text-xs focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-neutral-700 mb-1">
+                      <label className="block text-xs font-semibold text-neutral-700 mb-1">
                         Mobile No. *
                       </label>
                       <input
@@ -325,11 +339,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                         value={formData.mobile}
                         onChange={handleChange}
                         placeholder="10-digit number"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300/80 text-xs focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-neutral-700 mb-1">
+                      <label className="block text-xs font-semibold text-neutral-700 mb-1">
                         Date of Birth *
                       </label>
                       <input
@@ -338,20 +352,20 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                         name="dob"
                         value={formData.dob}
                         onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300/80 text-xs focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Qualification *
                     </label>
                     <select
                       name="qualification"
                       value={formData.qualification}
                       onChange={handleChange}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs bg-white"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300/80 text-xs focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     >
                       <option value="10th Pass">10th Pass</option>
                       <option value="12th Pass (Science)">12th Pass (Science)</option>
@@ -362,10 +376,10 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-neutral-700 mb-1">
-                        City *
+                      <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                        City / State *
                       </label>
                       <input
                         type="text"
@@ -373,19 +387,19 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                         name="city"
                         value={formData.city}
                         onChange={handleChange}
-                        placeholder="e.g. New Delhi"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs focus:ring-2 focus:ring-red-500"
+                        placeholder="e.g. Jaipur"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300/80 text-xs focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-neutral-700 mb-1">
+                      <label className="block text-xs font-semibold text-neutral-700 mb-1">
                         Hostel Required?
                       </label>
                       <select
                         name="hostelRequired"
                         value={formData.hostelRequired}
                         onChange={handleChange}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300 text-xs bg-white"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-neutral-300/80 text-xs focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                       >
                         <option value="No">No</option>
                         <option value="Yes">Yes</option>
@@ -393,10 +407,52 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                     </div>
                   </div>
 
+                  {/* Document Upload Fields */}
+                  <div className="space-y-2 pt-2 border-t border-neutral-100">
+                    <span className="block text-xs font-semibold text-neutral-800">
+                      Upload Documents (10th, 12th & Aadhar)
+                    </span>
+
+                    <div className="space-y-2">
+                      <div className="p-2.5 bg-neutral-50 rounded-xl border border-neutral-200/70">
+                        <label className="block text-[11px] font-medium text-neutral-700 mb-1">10th Marksheet</label>
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={(e) => handleFileUpload(e, 'marksheet10thUrl')}
+                          className="text-xs text-neutral-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-neutral-900 file:text-white cursor-pointer w-full"
+                        />
+                        {formData.marksheet10thUrl && <span className="text-[10px] text-emerald-600 font-medium">✓ Uploaded</span>}
+                      </div>
+
+                      <div className="p-2.5 bg-neutral-50 rounded-xl border border-neutral-200/70">
+                        <label className="block text-[11px] font-medium text-neutral-700 mb-1">12th Marksheet</label>
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={(e) => handleFileUpload(e, 'marksheet12thUrl')}
+                          className="text-xs text-neutral-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-neutral-900 file:text-white cursor-pointer w-full"
+                        />
+                        {formData.marksheet12thUrl && <span className="text-[10px] text-emerald-600 font-medium">✓ Uploaded</span>}
+                      </div>
+
+                      <div className="p-2.5 bg-neutral-50 rounded-xl border border-neutral-200/70">
+                        <label className="block text-[11px] font-medium text-neutral-700 mb-1">Aadhar Card</label>
+                        <input
+                          type="file"
+                          accept="image/*,application/pdf"
+                          onChange={(e) => handleFileUpload(e, 'aadharUrl')}
+                          className="text-xs text-neutral-500 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-neutral-900 file:text-white cursor-pointer w-full"
+                        />
+                        {formData.aadharUrl && <span className="text-[10px] text-emerald-600 font-medium">✓ Uploaded</span>}
+                      </div>
+                    </div>
+                  </div>
+
                   <button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-3.5 rounded-xl bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-extrabold text-sm shadow-md shadow-red-600/30 transition-all flex items-center justify-center gap-2"
+                    disabled={isSubmitting || !!uploadingField}
+                    className="w-full py-3.5 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-xs shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {isSubmitting ? (
                       <>
@@ -404,10 +460,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
                         <span>Submitting...</span>
                       </>
                     ) : (
-                      <>
-                        <GraduationCap className="w-4 h-4" />
-                        <span>Confirm Batch Admission</span>
-                      </>
+                      <span>Submit Application</span>
                     )}
                   </button>
                 </form>
@@ -415,11 +468,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ slug: s
 
               <div className="pt-2 text-center border-t border-neutral-100">
                 <a
-                  href="tel:+919876543210"
-                  className="text-xs text-neutral-600 hover:text-red-600 font-bold inline-flex items-center gap-1"
+                  href="tel:+919680505554"
+                  className="text-xs text-neutral-600 hover:text-neutral-900 font-medium inline-flex items-center gap-1.5"
                 >
-                  <PhoneCall className="w-3.5 h-3.5 text-red-600" />
-                  <span>Helpline: +91 98765 43210</span>
+                  <PhoneCall className="w-3.5 h-3.5 text-neutral-500" />
+                  <span>Helpline: +91 96805 05554</span>
                 </a>
               </div>
 

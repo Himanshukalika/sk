@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Course, AdmissionLead, ContactEnquiry, RecruitmentNotice, BlogPost, GalleryItem } from '@/types';
 import { INITIAL_COURSES, INITIAL_RECRUITMENTS, INITIAL_BLOGS, INITIAL_GALLERY } from './initialData';
+import { isSupabaseConfigured, supabase, mapRowToGalleryItem, mapGalleryItemToRow } from '@/lib/supabase';
 
 const DATA_DIR = path.join(process.cwd(), '.data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
@@ -138,8 +139,11 @@ export function addLead(lead: Omit<AdmissionLead, 'id' | 'createdAt' | 'status'>
     address: lead.address,
     state: lead.state,
     city: lead.city,
-    selectedCourse: lead.selectedCourse,
+    selectedCourse: lead.selectedCourse || 'General Admission',
     hostelRequired: lead.hostelRequired || 'No',
+    marksheet10thUrl: lead.marksheet10thUrl || '',
+    marksheet12thUrl: lead.marksheet12thUrl || '',
+    aadharUrl: lead.aadharUrl || '',
     notes: lead.notes || '',
     status: lead.status || 'New',
     createdAt: lead.createdAt || new Date().toISOString()
@@ -275,9 +279,113 @@ export function getGallery(): GalleryItem[] {
   return db.gallery;
 }
 
+export async function getGalleryItemsAsync(): Promise<GalleryItem[]> {
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('gallery_items')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (!error && data && data.length > 0) {
+        return data.map(mapRowToGalleryItem);
+      }
+    } catch (err) {
+      console.warn('Supabase fetch error, using local database fallback:', err);
+    }
+  }
+  return getGallery();
+}
+
 export function addGalleryItem(item: GalleryItem): GalleryItem {
   const db = ensureDb();
   db.gallery.unshift(item);
   saveDb(db);
   return item;
+}
+
+export async function addGalleryItemAsync(itemData: Omit<GalleryItem, 'id'> & { id?: string }): Promise<GalleryItem> {
+  const newItem: GalleryItem = {
+    id: itemData.id || `gal-${Date.now()}`,
+    title: itemData.title,
+    category: itemData.category,
+    section: itemData.section || (itemData.category === 'govt_selection' ? 'govt' : itemData.category === 'private_selection' ? 'private' : 'training'),
+    imageUrl: itemData.imageUrl,
+    description: itemData.description || '',
+    candidateName: itemData.candidateName || '',
+    postOrCompany: itemData.postOrCompany || '',
+    date: itemData.date || new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  };
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      const row = mapGalleryItemToRow(newItem);
+      const { data, error } = await supabase
+        .from('gallery_items')
+        .insert([row])
+        .select();
+
+      if (!error && data && data.length > 0) {
+        // also sync local db for redundancy
+        addGalleryItem(mapRowToGalleryItem(data[0]));
+        return mapRowToGalleryItem(data[0]);
+      }
+    } catch (err) {
+      console.warn('Supabase insert error, falling back to local file storage:', err);
+    }
+  }
+
+  return addGalleryItem(newItem);
+}
+
+export async function updateGalleryItemAsync(id: string, updates: Partial<GalleryItem>): Promise<GalleryItem | null> {
+  const db = ensureDb();
+  const index = db.gallery.findIndex(g => g.id === id);
+  if (index === -1) return null;
+
+  const updatedItem: GalleryItem = {
+    ...db.gallery[index],
+    ...updates
+  };
+
+  db.gallery[index] = updatedItem;
+  saveDb(db);
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      const row = mapGalleryItemToRow(updatedItem);
+      await supabase
+        .from('gallery_items')
+        .update(row)
+        .eq('id', id);
+    } catch (err) {
+      console.warn('Supabase update error:', err);
+    }
+  }
+
+  return updatedItem;
+}
+
+export async function deleteGalleryItemAsync(id: string): Promise<boolean> {
+  const db = ensureDb();
+  const initialLength = db.gallery.length;
+  db.gallery = db.gallery.filter(g => g.id !== id);
+  const success = db.gallery.length < initialLength;
+  
+  if (success) {
+    saveDb(db);
+  }
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      await supabase
+        .from('gallery_items')
+        .delete()
+        .eq('id', id);
+    } catch (err) {
+      console.warn('Supabase delete error:', err);
+    }
+  }
+
+  return success;
 }

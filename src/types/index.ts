@@ -43,8 +43,11 @@ export interface AdmissionLead {
   address: string;
   state: string;
   city: string;
-  selectedCourse: string;
+  selectedCourse?: string;
   hostelRequired: 'Yes' | 'No';
+  marksheet10thUrl?: string;
+  marksheet12thUrl?: string;
+  aadharUrl?: string;
   notes?: string;
   status: 'New' | 'Contacted' | 'Enrolled' | 'Rejected';
   createdAt: string;
@@ -113,8 +116,11 @@ export interface Testimonial {
 export interface GalleryItem {
   id: string;
   title: string;
-  category: 'ground' | 'classroom' | 'drills' | 'celebration' | 'hostel';
+  category: 'govt_selection' | 'private_selection' | 'ground' | 'classroom' | 'drills' | 'celebration' | 'hostel' | string;
+  section?: 'govt' | 'private' | 'training';
   imageUrl: string;
   description?: string;
+  candidateName?: string;
+  postOrCompany?: string;
   date?: string;
 }

@@ -613,66 +613,56 @@ export const INITIAL_TESTIMONIALS: Testimonial[] = [
 export const INITIAL_GALLERY: GalleryItem[] = [
   {
     id: 'gal-1',
-    title: 'Morning 400m Sprint & Stamina Track Session',
+    title: '400m Endurance Track Training',
     category: 'ground',
-    imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&auto=format&fit=crop&q=80',
-    description: 'Students undergoing stamina endurance sprint drills on our dedicated 400m track.',
+    imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c6232661c00?auto=format&fit=crop&q=80&w=1200',
+    description: 'Early morning 400m stamina running drill at academy physical ground.',
     date: 'August 2026'
   },
   {
     id: 'gal-2',
-    title: '60kg Human Dummy Carry Technique Workshop',
-    category: 'ground',
-    imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&auto=format&fit=crop&q=80',
-    description: 'Practical training on lifting and balancing standard 60-65kg sand dummies safely.',
-    date: 'August 2026'
+    title: 'Delhi Fire Service Selections',
+    category: 'govt_selection',
+    imageUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&q=80&w=1200',
+    candidateName: 'Vikram Singh Shekhawat (Rank 14)',
+    postOrCompany: 'Delhi Fire Service',
+    description: 'Proud candidate selected in DFS written & physical exams.',
+    date: 'July 2026'
   },
   {
     id: 'gal-3',
-    title: 'Classroom Theory & Fire Science Lecture',
-    category: 'classroom',
-    imageUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80',
-    description: 'Smart classroom interactive session on combustion chemistry and building safety codes.',
-    date: 'July 2026'
+    title: 'Live Fire Extinguisher Drill',
+    category: 'drills',
+    imageUrl: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80&w=1200',
+    description: 'Hands-on live fire combat training with FOAM & CO2 extinguishers.',
+    date: 'June 2026'
   },
   {
     id: 'gal-4',
-    title: 'Fire Extinguisher & Live Drill Demonstration',
-    category: 'drills',
-    imageUrl: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=800&auto=format&fit=crop&q=80',
-    description: 'Live field drill with CO2, DCP and Foam type extinguishers on controlled fires.',
-    date: 'July 2026'
+    title: '60kg Dummy Carry Workout',
+    category: 'ground',
+    imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=1200',
+    description: '60 kg human weight dummy carry practice within specified timing.',
+    date: 'May 2026'
   },
   {
     id: 'gal-5',
-    title: 'Success Celebration & Felicitation of Selected Candidates',
-    category: 'celebration',
-    imageUrl: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=800&auto=format&fit=crop&q=80',
-    description: 'Honoring our students who cleared Delhi Fire Service & CISF Fireman exams.',
-    date: 'June 2026'
+    title: 'CISF Fire Officer Placements',
+    category: 'govt_selection',
+    imageUrl: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&q=80&w=1200',
+    candidateName: 'Rahul Kumar Meena',
+    postOrCompany: 'CISF Fire Wing',
+    description: 'Successful placement in CISF Constable Fire recruitment.',
+    date: 'April 2026'
   },
   {
     id: 'gal-6',
-    title: 'Vertical Rope Climbing Practice Pit',
-    category: 'ground',
-    imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=800&auto=format&fit=crop&q=80',
-    description: 'Students mastering J-hook and leg-lock climbing on our 5-meter vertical ropes.',
-    date: 'July 2026'
-  },
-  {
-    id: 'gal-7',
-    title: 'Campus Hostel & Study Library Room',
-    category: 'hostel',
-    imageUrl: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&auto=format&fit=crop&q=80',
-    description: 'Peaceful residential hostel environment with 24x7 study library and hygienic mess.',
-    date: 'June 2026'
-  },
-  {
-    id: 'gal-8',
-    title: 'Weekly OMR Real Exam Simulation Test',
+    title: 'Smart Classroom & Fire Science Theory',
     category: 'classroom',
-    imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop&q=80',
-    description: 'All-India level weekly mock exam conducted under strict examination hall conditions.',
-    date: 'August 2026'
+    imageUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=1200',
+    description: 'Interactive lecture on Fire Hydraulics, Pumps & Safety Codes.',
+    date: 'March 2026'
   }
 ];
+
+

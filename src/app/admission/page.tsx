@@ -2,17 +2,14 @@
 
 import React, { useState } from 'react';
 import {
-  GraduationCap,
   CheckCircle,
   Loader2,
   Send,
   MessageCircle,
-  Shield,
   Clock,
-  Home,
-  UserCheck
+  Upload,
+  FileText
 } from 'lucide-react';
-import { INITIAL_COURSES } from '@/data/initialData';
 
 export default function AdmissionPage() {
   const [formData, setFormData] = useState({
@@ -25,14 +22,17 @@ export default function AdmissionPage() {
     gender: 'Male',
     qualification: '12th Pass (Science)',
     address: '',
-    state: 'Delhi',
+    state: 'Rajasthan',
     city: '',
-    selectedCourse: 'fire-guard-course',
     hostelRequired: 'No',
+    marksheet10thUrl: '',
+    marksheet12thUrl: '',
+    aadharUrl: '',
     notes: ''
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingField, setUploadingField] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [leadId, setLeadId] = useState('');
@@ -42,6 +42,39 @@ export default function AdmissionPage() {
       ...prev,
       [e.target.name]: e.target.value
     }));
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: 'marksheet10thUrl' | 'marksheet12thUrl' | 'aadharUrl') => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    setUploadingField(fieldName);
+    try {
+      const data = new FormData();
+      data.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: data
+      });
+
+      const result = await res.json();
+      if (result.success && (result.imageUrl || result.url)) {
+        const fileUrl = result.imageUrl || result.url;
+        setFormData(prev => ({
+          ...prev,
+          [fieldName]: fileUrl
+        }));
+      } else {
+        alert(result.error || 'Failed to upload document.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Document upload failed. Please try again.');
+    } finally {
+      setUploadingField(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +91,7 @@ export default function AdmissionPage() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to submit admission enquiry.');
+        throw new Error(data.error || 'Failed to submit admission form.');
       }
 
       setLeadId(data.leadId);
@@ -73,72 +106,69 @@ export default function AdmissionPage() {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-24">
+    <div className="bg-[#f5f4ef] min-h-screen text-neutral-900 pb-28">
       
       {/* Header Banner */}
-      <section className="bg-gradient-to-r from-neutral-950 via-neutral-900 to-red-950 text-white py-14 sm:py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
-          <span className="text-xs font-black uppercase tracking-widest text-red-400 bg-red-950/80 border border-red-800 px-3.5 py-1.5 rounded-full inline-block">
-            Online Registration 2026
-          </span>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
-            Online Admission & Registration Form
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-12 sm:pt-16 pb-8 sm:pb-10">
+        <div className="flex items-center gap-4">
+          <span className="w-7 sm:w-10 h-[2px] bg-neutral-800 inline-block" />
+          <h1 className="text-2xl sm:text-4xl font-normal tracking-[0.2em] text-neutral-900 uppercase">
+            ONLINE ADMISSION REGISTRATION
           </h1>
-          <p className="text-neutral-300 text-sm sm:text-base max-w-xl mx-auto">
-            Reserve your seat in SK Fire Agency&apos;s upcoming target batch (Written Theory + 400m Physical Ground).
-          </p>
         </div>
-      </section>
+        <p className="mt-3 text-neutral-600 text-sm sm:text-base max-w-xl font-normal">
+          Shri Krishna Fire & Safety Academy (Pawta Jaipur) — Submit candidate details and upload documents (10th, 12th & Aadhar Card).
+        </p>
+      </div>
 
       {/* Main Form Container */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
-        <div className="bg-white rounded-3xl shadow-xl border border-neutral-200 p-6 sm:p-10">
+      <div className="max-w-4xl mx-auto px-6 sm:px-10 lg:px-12">
+        <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-xs p-6 sm:p-10">
           
           {isSuccess ? (
             <div className="py-12 text-center space-y-6">
-              <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
-                <CheckCircle className="w-12 h-12" />
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-xs">
+                <CheckCircle className="w-10 h-10" />
               </div>
 
               <div>
-                <span className="text-xs font-black uppercase text-green-700 bg-green-50 px-3 py-1 rounded-full">
-                  Admission Form Received
+                <span className="text-xs font-semibold uppercase text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/60">
+                  Admission Registration Submitted
                 </span>
-                <h2 className="text-3xl font-black text-neutral-900 mt-2">
-                  Your Admission Form Has Been Successfully Submitted!
+                <h2 className="text-2xl sm:text-3xl font-bold text-neutral-900 mt-3">
+                  Registration Submitted Successfully
                 </h2>
                 <p className="text-sm text-neutral-600 mt-2 max-w-md mx-auto">
-                  Congratulations <strong>{formData.fullName}</strong>! Your official registration ID is:
+                  Thank you <strong>{formData.fullName}</strong>. Your official Registration ID is:
                 </p>
-                <div className="inline-block bg-neutral-900 text-amber-400 font-mono font-black text-lg px-6 py-2.5 rounded-xl mt-3 shadow-md">
+                <div className="inline-block bg-neutral-900 text-white font-mono font-bold text-lg px-6 py-2.5 rounded-xl mt-3 shadow-xs">
                   {leadId}
                 </div>
               </div>
 
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 text-left max-w-lg mx-auto text-xs text-amber-900 space-y-2">
-                <h4 className="font-extrabold text-sm text-amber-950 flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-amber-700" />
+              <div className="bg-neutral-50 border border-neutral-200/80 rounded-xl p-5 text-left max-w-lg mx-auto text-xs text-neutral-700 space-y-2">
+                <h3 className="font-semibold text-sm text-neutral-900 flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-neutral-600" />
                   <span>Next Steps:</span>
-                </h4>
-                <p>1. Our senior admission counselor will contact you at <strong>{formData.mobile}</strong> within 2 hours.</p>
-                <p>2. You will receive complete details regarding batch timings, hostel allotment, and class schedule.</p>
-                <p>3. You can also send a direct confirmation message via WhatsApp below.</p>
+                </h3>
+                <p>1. Our admissions counselor will contact you at <strong>{formData.mobile}</strong> shortly.</p>
+                <p>2. You will receive complete details regarding hostel allotment, physical ground timing, and class schedules.</p>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
                 <a
-                  href={`https://wa.me/919876543210?text=Hello%20SK%20Fire%20Agency,%20I%20have%20submitted%20Online%20Admission%20Form%20with%20ID%20${leadId}%20for%20${encodeURIComponent(formData.selectedCourse)}.%20Please%20confirm%20my%20seat.`}
+                  href={`https://wa.me/919680505554?text=Hello%20SK%20Fire%20Academy,%20I%20have%20submitted%20Online%20Admission%20Form%20with%20ID%20${leadId}.%20Please%20verify%20my%20documents.`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-green-600/30 flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs rounded-xl flex items-center justify-center gap-2 transition-colors"
                 >
-                  <MessageCircle className="w-5 h-5" />
-                  <span>Send Confirmation on WhatsApp</span>
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Confirm on WhatsApp</span>
                 </a>
 
                 <button
                   onClick={() => setIsSuccess(false)}
-                  className="w-full sm:w-auto px-6 py-4 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-bold text-sm rounded-xl"
+                  className="w-full sm:w-auto px-6 py-3.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-medium text-xs rounded-xl transition-colors"
                 >
                   Fill Another Form
                 </button>
@@ -148,65 +178,20 @@ export default function AdmissionPage() {
             <form onSubmit={handleSubmit} className="space-y-8">
               
               {errorMessage && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm flex items-center gap-2">
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm flex items-center gap-2">
                   <span>{errorMessage}</span>
                 </div>
               )}
 
-              {/* Section 1: Course Selection */}
-              <div>
-                <h3 className="text-lg font-black text-neutral-900 border-l-4 border-red-600 pl-3 mb-4 flex items-center gap-2">
-                  <GraduationCap className="w-5 h-5 text-red-600" />
-                  <span>1. Target Course & Batch Selection</span>
+              {/* Personal Information */}
+              <div className="space-y-4">
+                <h3 className="text-base font-semibold text-neutral-900 border-b border-neutral-100 pb-2">
+                  1. Candidate Information
                 </h3>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {INITIAL_COURSES.map((course) => (
-                    <label
-                      key={course.slug}
-                      className={`p-4 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between ${
-                        formData.selectedCourse === course.slug
-                          ? 'border-red-600 bg-red-50/50 shadow-md'
-                          : 'border-neutral-200 hover:border-neutral-300'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <span className="font-extrabold text-sm text-neutral-900 block">
-                            {course.title}
-                          </span>
-                          <span className="text-[11px] text-neutral-500 font-medium mt-0.5 block">
-                            {course.hindiTitle}
-                          </span>
-                        </div>
-                        <input
-                          type="radio"
-                          name="selectedCourse"
-                          value={course.slug}
-                          checked={formData.selectedCourse === course.slug}
-                          onChange={handleChange}
-                          className="mt-1 text-red-600 focus:ring-red-500"
-                        />
-                      </div>
-                      <div className="mt-3 pt-2 border-t border-neutral-200/60 flex items-center justify-between text-xs">
-                        <span className="font-bold text-red-600">{course.fees || 'Batch Admission'}</span>
-                        <span className="text-neutral-500">{course.duration}</span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Section 2: Student Personal Info */}
-              <div>
-                <h3 className="text-lg font-black text-neutral-900 border-l-4 border-red-600 pl-3 mb-4 flex items-center gap-2">
-                  <UserCheck className="w-5 h-5 text-red-600" />
-                  <span>2. Candidate Personal Information</span>
-                </h3>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Full Name *
                     </label>
                     <input
@@ -215,13 +200,13 @@ export default function AdmissionPage() {
                       name="fullName"
                       value={formData.fullName}
                       onChange={handleChange}
-                      placeholder="Enter student's full name"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      placeholder="Enter candidate's full name"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Father’s Name *
                     </label>
                     <input
@@ -231,13 +216,13 @@ export default function AdmissionPage() {
                       value={formData.fatherName}
                       onChange={handleChange}
                       placeholder="Enter father's name"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
-                      Mobile Number (Calling & WhatsApp) *
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                      Mobile Number *
                     </label>
                     <input
                       type="tel"
@@ -247,12 +232,12 @@ export default function AdmissionPage() {
                       value={formData.mobile}
                       onChange={handleChange}
                       placeholder="10-digit primary mobile number"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Alternate Mobile / Parent Contact
                     </label>
                     <input
@@ -261,12 +246,12 @@ export default function AdmissionPage() {
                       value={formData.alternateMobile}
                       onChange={handleChange}
                       placeholder="Optional alternate mobile number"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Email Address
                     </label>
                     <input
@@ -275,12 +260,12 @@ export default function AdmissionPage() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="example@gmail.com"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Date of Birth *
                     </label>
                     <input
@@ -289,19 +274,19 @@ export default function AdmissionPage() {
                       name="dob"
                       value={formData.dob}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Gender *
                     </label>
                     <select
                       name="gender"
                       value={formData.gender}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
@@ -310,14 +295,14 @@ export default function AdmissionPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Highest Qualification *
                     </label>
                     <select
                       name="qualification"
                       value={formData.qualification}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     >
                       <option value="10th Pass">10th Pass (Matriculation)</option>
                       <option value="12th Pass (Science)">12th Pass (Science - PCM/PCB)</option>
@@ -330,16 +315,15 @@ export default function AdmissionPage() {
                 </div>
               </div>
 
-              {/* Section 3: Postal Address & Hostel */}
-              <div>
-                <h3 className="text-lg font-black text-neutral-900 border-l-4 border-red-600 pl-3 mb-4 flex items-center gap-2">
-                  <Home className="w-5 h-5 text-red-600" />
-                  <span>3. Address & Hostel Requirement</span>
+              {/* Postal Address & Hostel */}
+              <div className="space-y-4 pt-2">
+                <h3 className="text-base font-semibold text-neutral-900 border-b border-neutral-100 pb-2">
+                  2. Address & Hostel Requirement
                 </h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       State *
                     </label>
                     <input
@@ -348,13 +332,13 @@ export default function AdmissionPage() {
                       name="state"
                       value={formData.state}
                       onChange={handleChange}
-                      placeholder="e.g. Delhi, Haryana, Rajasthan, UP"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      placeholder="e.g. Rajasthan, Delhi, Haryana"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       City / District *
                     </label>
                     <input
@@ -363,20 +347,20 @@ export default function AdmissionPage() {
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
-                      placeholder="e.g. New Delhi, Rewari, Alwar, Meerut"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      placeholder="e.g. Jaipur, Alwar, Rewari"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Hostel & Mess Facility
                     </label>
                     <select
                       name="hostelRequired"
                       value={formData.hostelRequired}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 bg-white"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     >
                       <option value="No">No (Day Scholar)</option>
                       <option value="Yes">Yes (Need Hostel & Food)</option>
@@ -384,8 +368,8 @@ export default function AdmissionPage() {
                   </div>
 
                   <div className="sm:col-span-3">
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
-                      Complete Permanent Address *
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
+                      Complete Address *
                     </label>
                     <textarea
                       rows={2}
@@ -393,13 +377,13 @@ export default function AdmissionPage() {
                       name="address"
                       value={formData.address}
                       onChange={handleChange}
-                      placeholder="House/Plot No., Street/Ward, Tehsil, District, PIN Code"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      placeholder="House/Plot No., Street, Tehsil, District, PIN Code"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
 
                   <div className="sm:col-span-3">
-                    <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                    <label className="block text-xs font-semibold text-neutral-700 mb-1">
                       Any Query or Note
                     </label>
                     <input
@@ -408,33 +392,111 @@ export default function AdmissionPage() {
                       value={formData.notes}
                       onChange={handleChange}
                       placeholder="e.g. Want physical ground batch from next Monday"
-                      className="w-full px-4 py-3 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                      className="w-full px-4 py-3 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Submit Button & Assurance */}
-              <div className="pt-6 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-xs text-neutral-500">
-                  <Shield className="w-4 h-4 text-green-600 shrink-0" />
-                  <span>100% Confidential • Seat Reservation Subject to Eligibility</span>
+              {/* DOCUMENT UPLOAD SECTION */}
+              <div className="space-y-4 pt-2 border-t border-neutral-200/80">
+                <h3 className="text-base font-semibold text-neutral-900 flex items-center gap-2">
+                  <Upload className="w-4 h-4 text-neutral-600" />
+                  <span>3. Document Upload (10th, 12th & Aadhar Card)</span>
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {/* 10th Marksheet */}
+                  <div className="p-4 bg-neutral-50/80 rounded-xl border border-neutral-200/80 space-y-2">
+                    <label className="block text-xs font-semibold text-neutral-800">
+                      10th Marksheet
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) => handleFileUpload(e, 'marksheet10thUrl')}
+                      className="text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-neutral-900 file:text-white hover:file:bg-neutral-800 cursor-pointer w-full"
+                    />
+                    {uploadingField === 'marksheet10thUrl' && (
+                      <span className="text-xs text-amber-600 font-medium flex items-center gap-1">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Uploading...
+                      </span>
+                    )}
+                    {formData.marksheet10thUrl && (
+                      <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                        ✓ 10th Marksheet Uploaded
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 12th Marksheet */}
+                  <div className="p-4 bg-neutral-50/80 rounded-xl border border-neutral-200/80 space-y-2">
+                    <label className="block text-xs font-semibold text-neutral-800">
+                      12th Marksheet
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) => handleFileUpload(e, 'marksheet12thUrl')}
+                      className="text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-neutral-900 file:text-white hover:file:bg-neutral-800 cursor-pointer w-full"
+                    />
+                    {uploadingField === 'marksheet12thUrl' && (
+                      <span className="text-xs text-amber-600 font-medium flex items-center gap-1">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Uploading...
+                      </span>
+                    )}
+                    {formData.marksheet12thUrl && (
+                      <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                        ✓ 12th Marksheet Uploaded
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Aadhar Card */}
+                  <div className="p-4 bg-neutral-50/80 rounded-xl border border-neutral-200/80 space-y-2">
+                    <label className="block text-xs font-semibold text-neutral-800">
+                      Aadhar Card
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(e) => handleFileUpload(e, 'aadharUrl')}
+                      className="text-xs text-neutral-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-neutral-900 file:text-white hover:file:bg-neutral-800 cursor-pointer w-full"
+                    />
+                    {uploadingField === 'aadharUrl' && (
+                      <span className="text-xs text-amber-600 font-medium flex items-center gap-1">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" /> Uploading...
+                      </span>
+                    )}
+                    {formData.aadharUrl && (
+                      <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                        ✓ Aadhar Card Uploaded
+                      </span>
+                    )}
+                  </div>
                 </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-6 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span className="text-xs text-neutral-500">
+                  🔒 Information and uploaded documents are securely processed for admissions.
+                </span>
 
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-black text-base rounded-2xl shadow-xl shadow-red-600/30 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                  disabled={isSubmitting || !!uploadingField}
+                  className="w-full sm:w-auto px-8 py-3.5 bg-neutral-900 hover:bg-neutral-800 text-white font-medium text-sm rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Submitting Admission Form...</span>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Submitting Registration...</span>
                     </>
                   ) : (
                     <>
-                      <Send className="w-5 h-5" />
-                      <span>Submit Online Admission Registration</span>
+                      <Send className="w-4 h-4" />
+                      <span>Submit</span>
                     </>
                   )}
                 </button>

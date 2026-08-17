@@ -1,12 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  Briefcase,
-  Search,
-  MessageCircle,
-  Bell
-} from 'lucide-react';
+import { Search, Briefcase, MessageCircle } from 'lucide-react';
 import RecruitmentCard from '@/components/RecruitmentCard';
 import AdmissionModal from '@/components/AdmissionModal';
 import { INITIAL_RECRUITMENTS } from '@/data/initialData';
@@ -16,7 +11,7 @@ export default function RecruitmentPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [targetCourse, setTargetCourse] = useState('fireman-preparation');
+  const [targetCourse, setTargetCourse] = useState('fire-guard-course');
 
   const states = [
     { id: 'all', label: 'All States & Central' },
@@ -42,26 +37,24 @@ export default function RecruitmentPage() {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-20">
+    <div className="bg-[#f5f4ef] min-h-screen text-neutral-900 pb-28">
       
-      {/* Header Banner */}
-      <section className="bg-gradient-to-r from-neutral-950 via-neutral-900 to-red-950 text-white py-14 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
-          <span className="text-xs font-black uppercase tracking-widest text-amber-400 bg-amber-950/80 border border-amber-800 px-3.5 py-1.5 rounded-full inline-block">
-            Fire Dept Vacancy Alerts 2026
-          </span>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
-            Latest Fire Department Recruitments
+      {/* MINIMALIST HEADER MATCHING GALLERY & CONTACT STYLE */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-12 sm:pt-16 pb-8 sm:pb-10">
+        <div className="flex items-center gap-4">
+          <span className="w-7 sm:w-10 h-[2px] bg-neutral-800 inline-block" />
+          <h1 className="text-2xl sm:text-4xl font-normal tracking-[0.2em] text-neutral-900 uppercase">
+            VACANCIES & RECRUITMENT
           </h1>
-          <p className="text-neutral-300 text-sm sm:text-base max-w-2xl mx-auto">
-            Live notification updates for Delhi Fire Service, CISF Fire Wing, State Municipal Corporations, and Industrial Safety positions.
-          </p>
         </div>
-      </section>
+        <p className="mt-3 text-neutral-600 text-sm sm:text-base max-w-xl font-normal">
+          Live Vacancy Alerts for Delhi Fire Service (DSSSB), CISF Fire Wing & State Municipal Corporations.
+        </p>
+      </div>
 
-      {/* Filter & Search Bar */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-7 relative z-20">
-        <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-xl border border-neutral-200 space-y-4">
+      {/* FILTER & SEARCH BAR */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-8">
+        <div className="bg-white p-4 sm:p-6 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
           
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="relative w-full md:w-96">
@@ -70,8 +63,8 @@ export default function RecruitmentPage() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search recruitment e.g. DSSSB, CISF, Rajasthan..."
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                placeholder="Search vacancies e.g. DSSSB, CISF..."
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-neutral-300/80 text-xs sm:text-sm focus:outline-none focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 bg-neutral-50/30 transition-all"
               />
             </div>
 
@@ -81,10 +74,10 @@ export default function RecruitmentPage() {
                 <button
                   key={st}
                   onClick={() => setSelectedStatus(st)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-colors ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold capitalize transition-all cursor-pointer ${
                     selectedStatus === st
                       ? 'bg-neutral-900 text-white'
-                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                      : 'bg-neutral-100/80 text-neutral-600 hover:bg-neutral-200/70'
                   }`}
                 >
                   {st === 'all' ? 'All Status' : st}
@@ -94,15 +87,15 @@ export default function RecruitmentPage() {
           </div>
 
           {/* State Filter Buttons */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {states.map((st) => (
               <button
                 key={st.id}
                 onClick={() => setSelectedState(st.id)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   selectedState === st.id
-                    ? 'bg-red-600 text-white shadow-md shadow-red-600/20'
-                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                    ? 'bg-neutral-900 text-white shadow-xs'
+                    : 'bg-neutral-100/80 text-neutral-700 hover:bg-neutral-200/70'
                 }`}
               >
                 {st.label}
@@ -111,48 +104,16 @@ export default function RecruitmentPage() {
           </div>
 
         </div>
-      </section>
 
-      {/* Recruitment Cards Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
-        
-        {/* WhatsApp Notification Alert Box */}
-        <div className="mb-8 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-green-900 to-neutral-900 text-white border border-green-700/60 shadow-md flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-green-500 text-white flex items-center justify-center shrink-0">
-              <Bell className="w-5 h-5 animate-bounce" />
-            </div>
-            <div>
-              <h4 className="font-extrabold text-sm sm:text-base">
-                Get Instant Fire Vacancy Notifications on WhatsApp!
-              </h4>
-              <p className="text-xs text-neutral-300">
-                Join our free Fire Recruitment alert broadcast for upcoming notification PDFs and admit cards.
-              </p>
-            </div>
-          </div>
-
-          <a
-            href="https://wa.me/919876543210?text=Hello%20SK%20Fire%20Agency,%20please%20add%20me%20to%20Fire%20Recruitment%20WhatsApp%20Alert%20group."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white font-extrabold text-xs rounded-xl flex items-center gap-1.5 shrink-0 shadow"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span>Join WhatsApp Alerts</span>
-          </a>
-        </div>
-
+        {/* RECRUITMENT NOTICES CARDS */}
         {filteredRecruitments.length === 0 ? (
-          <div className="bg-white p-12 rounded-3xl text-center border border-neutral-200 max-w-md mx-auto space-y-3">
-            <Briefcase className="w-12 h-12 text-neutral-300 mx-auto" />
-            <h3 className="text-lg font-bold text-neutral-800">No recruitment notices found</h3>
-            <p className="text-xs text-neutral-500">
-              Try changing the state or status filter to see other available vacancies.
-            </p>
+          <div className="bg-white p-12 rounded-2xl text-center space-y-3 border border-neutral-200/80 shadow-xs">
+            <Briefcase className="w-10 h-10 text-neutral-400 mx-auto" />
+            <h3 className="text-base font-medium text-neutral-700">No recruitment notices match your search criteria.</h3>
+            <p className="text-xs text-neutral-500">Try clearing filters or search for another state.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {filteredRecruitments.map((notice) => (
               <RecruitmentCard
                 key={notice.id}
@@ -165,7 +126,26 @@ export default function RecruitmentPage() {
 
       </section>
 
-      {/* Admission Modal */}
+      {/* WHATSAPP ALERTS CTA CARD */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-12">
+        <div className="bg-white border border-neutral-200/80 rounded-2xl p-6 sm:p-8 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div>
+            <h3 className="text-lg font-semibold text-neutral-900">Get Instant Job Notifications</h3>
+            <p className="text-xs sm:text-sm text-neutral-600 mt-1">Join our WhatsApp alert group for new Fire & Safety recruitment releases.</p>
+          </div>
+          <a
+            href="https://wa.me/919680505554?text=Hello%20Shri%20Krishna%20Fire%20Academy,%20please%20add%20me%20to%20the%20Job%20Alert%20group."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors shrink-0"
+          >
+            <MessageCircle className="w-4 h-4" />
+            <span>Join WhatsApp Alerts</span>
+          </a>
+        </div>
+      </div>
+
+      {/* ADMISSION LIGHTBOX MODAL */}
       <AdmissionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

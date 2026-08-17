@@ -15,9 +15,9 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    if (!body.fullName || !body.mobile || !body.selectedCourse) {
+    if (!body.fullName || !body.mobile) {
       return NextResponse.json(
-        { success: false, error: 'Full Name, Mobile Number and Selected Course are required.' },
+        { success: false, error: 'Full Name and Mobile Number are required.' },
         { status: 400 }
       );
     }
@@ -34,8 +34,11 @@ export async function POST(request: Request) {
       address: body.address?.trim() || '',
       state: body.state?.trim() || '',
       city: body.city?.trim() || '',
-      selectedCourse: body.selectedCourse,
+      selectedCourse: body.selectedCourse || 'General Admission',
       hostelRequired: body.hostelRequired === 'Yes' ? 'Yes' : 'No',
+      marksheet10thUrl: body.marksheet10thUrl?.trim() || '',
+      marksheet12thUrl: body.marksheet12thUrl?.trim() || '',
+      aadharUrl: body.aadharUrl?.trim() || '',
       notes: body.notes?.trim() || ''
     });
 

@@ -1,258 +1,185 @@
 import React from 'react';
 import Link from 'next/link';
 import {
-  Flame,
-  Target,
-  Users,
-  Compass
+  CheckCircle2,
+  Trophy,
+  User,
+  Settings,
+  Building2,
+  Target
 } from 'lucide-react';
 
 export const metadata = {
-  title: 'About Us | SK Fire Agency - Premier Fire & Safety Coaching Institute',
-  description: 'Learn about SK Fire Agency coaching academy, our mission, experienced ex-fire officers faculty, physical training ground, and proven selection track record.'
+  title: 'About Us | Shri Krishna Fire and Safety Academy (Pawta Jaipur)',
+  description: 'Learn about Shri Krishna Fire and Safety Academy, Pawta Jaipur, Director Sandeep Yadav, NCVT approved courses, physical ground, and rank 1 selection track record.'
 };
 
 export default function AboutPage() {
-  const values = [
-    {
-      title: '100% Exam-Centric Curriculum',
-      desc: 'Our study programs are continuously refined against the latest exam patterns, OMR answer keys, and past 10 years solved papers.'
-    },
-    {
-      title: 'Scientific Physical Training',
-      desc: 'Supervised by NIS-certified athletic coaches to master 60kg dummy deadlifts, 400m sprint pacing, and vertical rope climbing safely.'
-    },
-    {
-      title: 'Experienced Faculty Mentorship',
-      desc: 'Instruction by retired Fire Officers and seasoned subject matter specialists providing personalized performance feedback.'
-    },
-    {
-      title: 'Weekly All-India Benchmarking',
-      desc: 'Sunday simulated full-length OMR mock examinations with live rank analysis to objectively evaluate exam readiness.'
-    }
-  ];
-
-  const faculty = [
-    {
-      name: 'Sub-Officer S. K. Yadav (Retd.)',
-      role: 'Founder & Chief Academic Director',
-      exp: '28+ Years in State Fire Services',
-      specialty: 'Fire Science, Hydraulics & Rescue Tactics'
-    },
-    {
-      name: 'Coach Baljeet Singh (NIS Certified)',
-      role: 'Head Physical Training Coach',
-      exp: '14+ Years Ground Training Experience',
-      specialty: '400m Track, 60kg Dummy Deadlift, Vertical Rope Grip'
-    },
-    {
-      name: 'Er. Rajesh Bhardwaj',
-      role: 'Senior Faculty - General Studies & GK',
-      exp: '10+ Years Competitive Exam Mentorship',
-      specialty: 'General Science, Logical Reasoning & GK'
-    },
-    {
-      name: 'Mahesh Kumar Sharma',
-      role: 'Fire Operator & Driving Test Instructor',
-      exp: '12+ Years HMV & Pump Mechanics Instructor',
-      specialty: 'Water Tender Operations & Driving Trade Tests'
-    }
-  ];
-
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="bg-[#f5f4ef] min-h-screen text-neutral-900 pb-28 font-sans">
       
-      {/* Header Banner */}
-      <section className="bg-gradient-to-r from-neutral-950 via-neutral-900 to-red-950 text-white py-16 sm:py-20 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <span className="text-xs font-black uppercase tracking-widest text-red-400 bg-red-950/80 border border-red-800 px-3.5 py-1.5 rounded-full inline-block mb-3">
-            About SK Fire Agency
-          </span>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight">
-            Institute Introduction & Leadership
+      {/* MINIMALIST HEADER MATCHING GALLERY & CONTACT STYLE */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-12 sm:pt-16 pb-8 sm:pb-10">
+        <div className="flex items-center gap-4">
+          <span className="w-7 sm:w-10 h-[2px] bg-neutral-800 inline-block" />
+          <h1 className="text-2xl sm:text-4xl font-normal tracking-[0.2em] text-neutral-900 uppercase">
+            ABOUT US
           </h1>
-          <p className="text-neutral-300 text-sm sm:text-base max-w-2xl mx-auto mt-3">
-            India&apos;s premier specialized academy for Fire Guard, Fireman, Fire Operator, and Fire & Safety recruitment preparation.
-          </p>
         </div>
-      </section>
+        <p className="mt-3 text-neutral-600 text-sm sm:text-base max-w-xl font-normal">
+          Shri Krishna Fire & Safety Academy (Pawta, Jaipur) — Rajasthan&apos;s premier institute for Fireman, Fire Operator, and Safety courses.
+        </p>
+      </div>
 
-      {/* Main Intro & Clarification */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            <div className="lg:col-span-6 space-y-5">
-              <div className="inline-flex items-center gap-2 text-xs font-extrabold text-red-600 uppercase tracking-wider">
-                <Flame className="w-4 h-4 text-red-600" />
-                <span>Our Story & Commitment</span>
+      {/* DIRECTOR & FOUNDER SPOTLIGHT */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+          
+          {/* Left Col: Director Profile */}
+          <div className="lg:col-span-5 bg-neutral-900 text-white p-8 sm:p-10 rounded-2xl border border-neutral-800 shadow-md flex flex-col justify-between">
+            <div>
+              <div className="w-16 h-16 rounded-2xl bg-neutral-800 text-amber-400 flex items-center justify-center font-bold text-2xl mb-6 border border-neutral-700">
+                <User className="w-8 h-8 text-amber-400" />
+              </div>
+              
+              <div className="space-y-1">
+                <span className="text-[11px] font-semibold uppercase text-amber-400 tracking-wider block">
+                  Director & Chief Mentor
+                </span>
+                <h2 className="text-2xl font-bold text-white tracking-tight">
+                  SANDEEP YADAV (S.F.O.)
+                </h2>
+                <p className="text-xs text-neutral-300 font-medium pt-1">
+                  B.Tech, B.Sc. (Fire & Safety)
+                </p>
+                <p className="text-xs text-neutral-400">
+                  Advance Diploma in Industrial Safety • NCVT Approved
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 pt-6 border-t border-neutral-800/80 text-xs text-neutral-400 space-y-2">
+              <div className="flex items-center justify-between">
+                <span>Campus Location:</span>
+                <span className="text-white font-medium">Pawta, Jaipur (Raj)</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Helplines:</span>
+                <span className="text-amber-400 font-medium">+91 96805 05554</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Col: Academy History & Selection Record */}
+          <div className="lg:col-span-7 bg-white p-8 sm:p-10 rounded-2xl border border-neutral-200/80 shadow-xs space-y-6 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-900 uppercase tracking-wider bg-neutral-100 px-3 py-1 rounded-full border border-neutral-200">
+                <Trophy className="w-3.5 h-3.5 text-amber-600" />
+                <span>Rajasthan #1 Selection Track Record</span>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-black text-neutral-900 tracking-tight leading-tight">
-                Empowering Aspirants to Excel in Fire and Emergency Services
+              <h2 className="text-2xl sm:text-3xl font-normal text-neutral-900 tracking-tight leading-tight">
+                Empowering Youth for Fire Services & Industrial Safety
               </h2>
 
-              <div className="space-y-3 text-sm text-neutral-600 leading-relaxed">
-                <p>
-                  <strong>SK Fire Agency</strong> is an elite coaching institute and athletic training academy founded with a singular mission: to provide focused, disciplined, and results-driven training for young aspirants aiming to serve in public and industrial fire brigades.
-                </p>
-                <p>
-                  Despite the word &apos;Agency&apos; in our heritage name, we are not a commercial fire safety vendor — we are an <strong>academic coaching academy and physical training ground</strong> preparing candidates for competitive examinations such as Delhi Fire Service (DSSSB), CISF Fireman, State Municipal Fire Services, and Industrial Safety Officers.
-                </p>
-                <p>
-                  Our holistic curriculum combines classroom pedagogy (General Knowledge, Mathematics, Reasoning, Fire Science) with daily morning and evening physical conditioning on our dedicated 400m track, 60kg dummy lifting racks, and vertical ropes.
-                </p>
-              </div>
-
-              <div className="pt-2 grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-2xl bg-red-50 border border-red-100">
-                  <div className="text-2xl font-black text-red-700">1250+</div>
-                  <div className="text-xs font-bold text-neutral-700 mt-0.5">Selections in Fire Depts</div>
-                </div>
-                <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100">
-                  <div className="text-2xl font-black text-amber-700">100%</div>
-                  <div className="text-xs font-bold text-neutral-700 mt-0.5">Ground & Practical Facility</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-6 space-y-4">
-              <div className="rounded-3xl overflow-hidden shadow-2xl border border-neutral-200">
-                <img
-                  src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop&q=80"
-                  alt="SK Fire Agency Classroom"
-                  className="w-full h-80 object-cover"
-                />
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* Mission & Vision */}
-      <section className="py-16 bg-slate-50 border-t border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-sm space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center font-bold">
-                <Target className="w-6 h-6" />
-              </div>
-              <h3 className="text-2xl font-black text-neutral-900">
-                Our Vision
-              </h3>
-              <p className="text-sm text-neutral-600 leading-relaxed">
-                To stand as India&apos;s most reliable coaching academy where every dedicated candidate dreaming of joining the fire services receives the highest standard of academic education, athletic conditioning, and character building.
+              <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
+                <strong>श्री कृष्णा फायर एकेडमी, पावता (जयपुर)</strong> is Rajasthan&apos;s premier educational coaching institute exclusively dedicated to preparing candidates for Fireman, Fire Driver, Sub Fire Officer, and Industrial Safety competitive examinations.
               </p>
             </div>
 
-            <div className="bg-white p-8 rounded-3xl border border-neutral-200 shadow-sm space-y-4">
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
-                <Compass className="w-6 h-6" />
+            {/* Major Selection Ranks Highlight Box */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200/70">
+                <div className="text-xl font-bold text-neutral-900">1st & 3rd Rank</div>
+                <p className="text-xs font-semibold text-neutral-800 mt-1">Rajasthan Fireman (Driver Post)</p>
+                <p className="text-[11px] text-neutral-500 mt-0.5">56 Students Selected in Single Batch</p>
               </div>
-              <h3 className="text-2xl font-black text-neutral-900">
-                Our Mission
-              </h3>
-              <p className="text-sm text-neutral-600 leading-relaxed">
-                To maintain state-of-the-art smart classrooms, dedicated athletic grounds, authentic physical testing equipment, and a disciplined residential environment ensuring over 500+ successful firefighter selections every year.
-              </p>
+
+              <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-200/70">
+                <div className="text-xl font-bold text-neutral-900">70+ Selections</div>
+                <p className="text-xs font-semibold text-neutral-800 mt-1">Rajasthan Fire Service 2021</p>
+                <p className="text-[11px] text-neutral-500 mt-0.5">Rajasthan Topper from our Academy</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2">
+              <div className="flex items-start gap-2.5 text-xs text-neutral-700">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>Own Fire Tender Vehicle for practical fire fighting trade test drills.</span>
+              </div>
+              <div className="flex items-start gap-2.5 text-xs text-neutral-700">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>S.K. GYM with separate fitness facilities for Boys & Girls.</span>
+              </div>
+              <div className="flex items-start gap-2.5 text-xs text-neutral-700">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>S.K. Computer Center offering RS-CIT, PGDCA, Accounts-Tally.</span>
+              </div>
             </div>
 
           </div>
+
         </div>
       </section>
 
-      {/* Core Values / Why Students Choose */}
-      <section className="py-16 bg-white border-t border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-            <span className="text-xs font-black uppercase tracking-widest text-red-600 bg-red-50 px-3 py-1 rounded-full">
-              Our Core Strengths
-            </span>
-            <h2 className="text-3xl font-black text-neutral-900">
-              Institutional Pillars of Excellence
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map((v, i) => (
-              <div key={i} className="p-6 rounded-2xl bg-neutral-50 border border-neutral-200/80 space-y-2">
-                <div className="w-8 h-8 rounded-lg bg-red-600 text-white flex items-center justify-center font-bold text-sm">
-                  {i + 1}
-                </div>
-                <h4 className="font-extrabold text-base text-neutral-900 pt-1">
-                  {v.title}
-                </h4>
-                <p className="text-xs text-neutral-600 leading-relaxed">
-                  {v.desc}
-                </p>
-              </div>
-            ))}
-          </div>
+      {/* ACADEMY FACILITIES & INFRASTRUCTURE */}
+      <section className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-12">
+        <div className="mb-8">
+          <h2 className="text-xl sm:text-2xl font-normal text-neutral-900 tracking-tight">
+            Academy Facilities & Infrastructure
+          </h2>
         </div>
-      </section>
 
-      {/* Faculty Team */}
-      <section className="py-16 bg-slate-50 border-t border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12 space-y-2">
-            <span className="text-xs font-black uppercase tracking-widest text-neutral-700 bg-neutral-200 px-3 py-1 rounded-full">
-              Expert Mentors
-            </span>
-            <h2 className="text-3xl font-black text-neutral-900">
-              Our Faculty & Ground Instructors
-            </h2>
-            <p className="text-xs text-neutral-600">
-              Guided by retired fire service officers and certified athletic coaches.
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          
+          <div className="bg-white p-8 rounded-2xl border border-neutral-200/80 shadow-xs space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <h3 className="text-lg font-semibold text-neutral-900">Campus & Residential Hostel</h3>
+            <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
+              Safe, hygienic residential hostel right on campus with 3 balanced meals daily and 24x7 study library.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {faculty.map((f, i) => (
-              <div key={i} className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm space-y-3 text-center">
-                <div className="w-20 h-20 rounded-full bg-neutral-100 border-2 border-red-500 mx-auto flex items-center justify-center text-red-600">
-                  <Users className="w-10 h-10 text-neutral-400" />
-                </div>
-                <div>
-                  <h4 className="font-black text-base text-neutral-900">{f.name}</h4>
-                  <p className="text-xs font-bold text-red-600 mt-0.5">{f.role}</p>
-                </div>
-                <div className="pt-2 border-t border-neutral-100 text-[11px] text-neutral-500 space-y-1">
-                  <p><strong>Experience:</strong> {f.exp}</p>
-                  <p className="text-neutral-700"><strong>Specialty:</strong> {f.specialty}</p>
-                </div>
-              </div>
-            ))}
+          <div className="bg-white p-8 rounded-2xl border border-neutral-200/80 shadow-xs space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center">
+              <Target className="w-5 h-5" />
+            </div>
+            <h3 className="text-lg font-semibold text-neutral-900">400m Physical Ground</h3>
+            <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
+              Dedicated 400m athletic track, 60kg dummy weight deadlift racks, 5m vertical rope climb, and long jump pits.
+            </p>
           </div>
+
+          <div className="bg-white p-8 rounded-2xl border border-neutral-200/80 shadow-xs space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-800 flex items-center justify-center">
+              <Settings className="w-5 h-5" />
+            </div>
+            <h3 className="text-lg font-semibold text-neutral-900">Practical Vehicles & Gym</h3>
+            <p className="text-xs sm:text-sm text-neutral-600 leading-relaxed">
+              Own Fire Fighting vehicle for driving & centrifugal pump mechanics test, plus S.K. Gym for cadets.
+            </p>
+          </div>
+
         </div>
       </section>
 
-      {/* CTA Box */}
-      <section className="py-16 bg-neutral-900 text-white text-center">
-        <div className="max-w-4xl mx-auto px-4 space-y-5">
-          <h3 className="text-2xl sm:text-3xl font-black">
-            Ready to Begin Your Fire Service Career?
-          </h3>
-          <p className="text-neutral-400 text-sm max-w-xl mx-auto">
-            Enroll in our upcoming target batch or visit our campus for a personalized counseling and ground demo session.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 pt-2">
-            <Link
-              href="/admission"
-              className="px-8 py-3.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-sm shadow-lg shadow-red-600/30"
-            >
-              Fill Online Admission Form
-            </Link>
-            <Link
-              href="/contact"
-              className="px-8 py-3.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm border border-neutral-700"
-            >
-              Visit Our Campus Ground
-            </Link>
+      {/* CTA FOOTER CARD */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-12">
+        <div className="bg-neutral-900 rounded-2xl p-8 sm:p-10 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md border border-neutral-800">
+          <div>
+            <h3 className="text-xl sm:text-2xl font-normal">Ready to Begin Your Preparation?</h3>
+            <p className="text-xs sm:text-sm text-neutral-400 mt-1">Get in touch with our admissions counselor for batch timings and hostel seats.</p>
           </div>
+          <Link
+            href="/admission"
+            className="bg-white text-neutral-950 hover:bg-neutral-200 font-medium px-6 py-3 rounded-xl text-xs transition-colors shrink-0"
+          >
+            Book Admission Now
+          </Link>
         </div>
-      </section>
+      </div>
 
     </div>
   );
