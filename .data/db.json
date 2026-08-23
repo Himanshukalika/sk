@@ -1,50 +1,6 @@
 {
-  "leads": [
-    {
-      "id": "lead-1786711888402-9ia31",
-      "fullName": "Krishan maan",
-      "fatherName": "Chouth mal maan",
-      "mobile": "8302658708",
-      "alternateMobile": "08696909081",
-      "email": "krishankumarmaan400@gmail.com",
-      "dob": "2026-08-14",
-      "gender": "Male",
-      "qualification": "12th Pass (Science)",
-      "address": "Dk Tiles Marble and granite",
-      "state": "Rajasthan",
-      "city": "JAIPUR",
-      "selectedCourse": "General Admission",
-      "hostelRequired": "No",
-      "marksheet10thUrl": "/uploads/doc_1786711869427_kqbyqk.webp",
-      "marksheet12thUrl": "/uploads/doc_1786711874859_ijx5od.webp",
-      "aadharUrl": "/uploads/doc_1786711880340_6b3eli.webp",
-      "notes": "",
-      "status": "New",
-      "createdAt": "2026-08-14T12:51:28.402Z"
-    }
-  ],
-  "contacts": [
-    {
-      "id": "contact-1786712042389",
-      "name": "Lotus Ludo",
-      "phone": "0869690908",
-      "email": "lotusludo477@gmail.com",
-      "subject": "Physical Ground Training",
-      "message": "chjhjh",
-      "createdAt": "2026-08-14T12:54:02.389Z",
-      "status": "New"
-    },
-    {
-      "id": "contact-1",
-      "name": "Pooja Choudhary",
-      "phone": "9988776655",
-      "email": "pooja.c@example.com",
-      "subject": "Hostel and batch timings inquiry",
-      "message": "Hello, are there separate hostel and physical training batches available for female candidates?",
-      "createdAt": "2026-08-13T05:35:27.207Z",
-      "status": "New"
-    }
-  ],
+  "leads": [],
+  "contacts": [],
   "courses": [
     {
       "id": "course-1",

@@ -31,10 +31,14 @@ import {
 import { AdmissionLead, ContactEnquiry, Course, RecruitmentNotice, BlogPost, GalleryItem } from '@/types';
 import { INITIAL_COURSES, INITIAL_RECRUITMENTS, INITIAL_BLOGS, INITIAL_GALLERY } from '@/data/initialData';
 
+const ADMIN_EMAIL = 'info@skfiresafety.in';
+const ADMIN_PASSWORD = 'SKFire@2024';
+
 export default function AdminDashboardPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(true); // default demo authenticated
-  const [adminPin, setAdminPin] = useState('');
-  const [pinError, setPinError] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
 
   const [activeTab, setActiveTab] = useState<'leads' | 'contacts' | 'courses' | 'recruitments' | 'blogs' | 'gallery'>('leads');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -307,13 +311,13 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handlePinLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminPin === '1234' || adminPin === 'admin' || adminPin === 'skfire') {
+    if (loginEmail.trim().toLowerCase() === ADMIN_EMAIL && loginPassword === ADMIN_PASSWORD) {
       setIsAuthenticated(true);
-      setPinError('');
+      setLoginError('');
     } else {
-      setPinError('Invalid Staff PIN (Try: 1234 or skfire)');
+      setLoginError('Invalid email or password. Please try again.');
     }
   };
 
@@ -346,28 +350,39 @@ export default function AdminDashboardPage() {
             </p>
           </div>
 
-          <form onSubmit={handlePinLogin} className="space-y-4">
-            {pinError && (
-              <p className="text-xs text-red-400 font-semibold">{pinError}</p>
+          <form onSubmit={handleLogin} className="space-y-4 text-left">
+            {loginError && (
+              <p className="text-xs text-red-400 font-semibold text-center">{loginError}</p>
             )}
-            <input
-              type="password"
-              value={adminPin}
-              onChange={(e) => setAdminPin(e.target.value)}
-              placeholder="Enter PIN (Default: 1234)"
-              className="w-full text-center px-4 py-3 bg-neutral-950 border border-neutral-700 rounded-xl text-sm font-bold tracking-widest focus:ring-2 focus:ring-red-600 focus:outline-none"
-            />
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Email</label>
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="Enter admin email"
+                className="w-full px-4 py-3 bg-neutral-950 border border-neutral-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-red-600 focus:outline-none text-white placeholder:text-neutral-600"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-neutral-400 uppercase tracking-wider">Password</label>
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="Enter password"
+                className="w-full px-4 py-3 bg-neutral-950 border border-neutral-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-red-600 focus:outline-none text-white placeholder:text-neutral-600"
+              />
+            </div>
             <button
               type="submit"
-              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md"
+              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md mt-2"
             >
               Access Dashboard
             </button>
           </form>
-
-          <p className="text-[11px] text-neutral-500">
-            For demo login, enter PIN: <strong>1234</strong>
-          </p>
         </div>
       </div>
     );
