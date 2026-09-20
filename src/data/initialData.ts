@@ -1,4 +1,4 @@
-import { Course, RecruitmentNotice, BlogPost, Testimonial, GalleryItem } from '@/types';
+import { Course, RecruitmentNotice, BlogPost, Testimonial, GalleryItem, SiteSettings } from '@/types';
 
 export const INITIAL_COURSES: Course[] = [
   {
@@ -570,99 +570,188 @@ At SK Fire Agency, our students practice hands-on with operational fire pump rig
 export const INITIAL_TESTIMONIALS: Testimonial[] = [
   {
     id: 'test-1',
-    name: 'Vikram Singh Shekhawat',
-    role: 'Selected Fireman (Rank 14)',
-    selectedIn: 'Delhi Fire Service (DSSSB 2024)',
-    batchYear: 'Batch 2023-24',
-    feedback: 'The dedicated 400m track and weekly OMR test series at SK Fire Agency were the biggest reasons for my selection. My dummy carry timing improved from 75s to 48s within two months thanks to the coach\'s deadlift technique.',
+    name: 'Joginder',
+    role: 'Driver Cum Pump Operator (DCPO)',
+    selectedIn: 'Government Fire Service',
+    batchYear: 'Batch 2021',
+    feedback: 'Shri Krishna Academy provided thorough HMV driving trade test preparation on their own fire tender truck and exceptional physical training.',
     rating: 5,
-    rollNo: 'DFS-24-8192'
+    rollNo: 'DCPO-2021-084',
+    photoUrl: '/images/candidate-joginder.jpg'
   },
   {
+    name: 'Amit Kumar Swami',
     id: 'test-2',
-    name: 'Rahul Kumar Meena',
-    role: 'Selected Constable (Fire)',
-    selectedIn: 'CISF Fireman Recruitment',
-    batchYear: 'Batch 2024',
-    feedback: 'The fire science lecture notes and general awareness booklets provided by the faculty covered over 80% of the actual exam questions. The campus hostel environment was peaceful and ideal for serious study.',
+    role: 'Selected Fireman',
+    selectedIn: 'Rajasthan State Fire Service',
+    batchYear: 'Batch 2021',
+    feedback: 'The 400m ground workouts, 60kg dummy lifting, and ex-S.F.O. Sandeep Yadav sir guidance were key to my selection in Rajasthan Fire Service.',
     rating: 5,
-    rollNo: 'CISF-24-10492'
+    rollNo: 'RAJ-FM-4412',
+    photoUrl: '/images/candidate-amit.jpg'
   },
   {
     id: 'test-3',
-    name: 'Ajay Sharma',
-    role: 'Selected Fire Operator / Driver',
-    selectedIn: 'Municipal Corporation Fire Brigade',
-    batchYear: 'Batch 2024-25',
-    feedback: 'Hands-on pump operations and heavy vehicle trade test coaching of this caliber is only available at SK Fire Agency in this entire region. Thank you team SK!',
+    name: 'Ramesh Puri',
+    role: 'Fire Officer',
+    selectedIn: 'Delhi Fire Service (DFS)',
+    batchYear: 'Batch 2020',
+    feedback: 'Rigorous mock tests and deep conceptual clarity on fire hydraulics and detection systems helped me clear the Delhi Fire Service examination.',
     rating: 5,
-    rollNo: 'FO-2025-072'
+    rollNo: 'DFS-FO-1092',
+    photoUrl: '/images/candidate-ramesh.jpg'
   },
   {
     id: 'test-4',
-    name: 'Sunil Yadav',
-    role: 'Selected Fire Guard',
-    selectedIn: 'State Industrial Security & Fire Force',
-    batchYear: 'Batch 2024',
-    feedback: 'My running stamina was initially weak for the 1600m test. The 5:30 AM endurance workouts transformed my fitness so much that I cleared the 1.6 km run in 5 minutes 45 seconds on test day.',
+    name: 'Vupin Kumar',
+    role: 'Fireman',
+    selectedIn: 'Delhi Fire Service',
+    batchYear: 'Batch 2021',
+    feedback: 'The residential hostel, disciplined daily routine, and continuous test series made all the difference in achieving my goal.',
     rating: 5,
-    rollNo: 'SISF-FG-9912'
+    rollNo: 'DFS-FM-3819',
+    photoUrl: '/images/candidate-vupin.jpg'
+  },
+  {
+    id: 'test-5',
+    name: 'Ankit Kumawat',
+    role: 'Industrial Safety Officer',
+    selectedIn: 'Mumbai Industrial Zone (MH)',
+    batchYear: 'Batch 2022',
+    feedback: 'The NCVT safety diploma and hands-on emergency response drills gave me immediate campus placement in industrial safety.',
+    rating: 5,
+    rollNo: 'ISO-MH-7714',
+    photoUrl: '/images/candidate-ankit.jpg'
   }
 ];
 
 export const INITIAL_GALLERY: GalleryItem[] = [
   {
     id: 'gal-1',
-    title: '400m Endurance Track Training',
-    category: 'ground',
-    imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c6232661c00?auto=format&fit=crop&q=80&w=1200',
-    description: 'Early morning 400m stamina running drill at academy physical ground.',
+    title: 'Academy Main Campus & Cadet Squad Formation',
+    category: 'classroom',
+    section: 'training',
+    imageUrl: '/images/campus-hero-banner.jpg',
+    description: 'Disciplined morning roll-call and cadet squad formation at the main Paota campus entrance with instructors and academy fire engine.',
     date: 'August 2026'
   },
   {
     id: 'gal-2',
-    title: 'Delhi Fire Service Selections',
-    category: 'govt_selection',
-    imageUrl: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&q=80&w=1200',
-    candidateName: 'Vikram Singh Shekhawat (Rank 14)',
-    postOrCompany: 'Delhi Fire Service',
-    description: 'Proud candidate selected in DFS written & physical exams.',
+    title: 'Live Fire Extinguisher & Jet Spray Combat Drill',
+    category: 'drills',
+    section: 'training',
+    imageUrl: '/images/fire-drill-action.jpg',
+    description: 'Cadets practicing rapid fire suppression using high-pressure branch pipes, water jet nozzles, and dry chemical powder extinguishers.',
     date: 'July 2026'
   },
   {
     id: 'gal-3',
-    title: 'Live Fire Extinguisher Drill',
-    category: 'drills',
-    imageUrl: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&q=80&w=1200',
-    description: 'Hands-on live fire combat training with FOAM & CO2 extinguishers.',
+    title: '60kg Human Dummy Carry & 400m Endurance Sprint',
+    category: 'ground',
+    section: 'training',
+    imageUrl: '/images/dummy-carry-drill.jpg',
+    description: 'Physical trade test practice: 60kg deadweight dummy carry across the standard 400m athletic track under coach stopwatch evaluation.',
     date: 'June 2026'
   },
   {
     id: 'gal-4',
-    title: '60kg Dummy Carry Workout',
-    category: 'ground',
-    imageUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&q=80&w=1200',
-    description: '60 kg human weight dummy carry practice within specified timing.',
+    title: 'Fire Tender Centrifugal Pump & Valve Mechanics Drill',
+    category: 'drills',
+    section: 'training',
+    imageUrl: '/images/fire-truck-pump.jpg',
+    description: 'Hands-on practical training on operational fire tender centrifugal pump operations, suction/delivery valves, and hose couplings.',
     date: 'May 2026'
   },
   {
     id: 'gal-5',
-    title: 'CISF Fire Officer Placements',
+    title: 'Government Selection - Joginder (DCPO)',
     category: 'govt_selection',
-    imageUrl: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&q=80&w=1200',
-    candidateName: 'Rahul Kumar Meena',
-    postOrCompany: 'CISF Fire Wing',
-    description: 'Successful placement in CISF Constable Fire recruitment.',
-    date: 'April 2026'
+    section: 'govt',
+    imageUrl: '/images/candidate-joginder.jpg',
+    candidateName: 'Joginder',
+    postOrCompany: 'Driver Cum Pump Operator (DCPO)',
+    description: 'Selected in Government Fire Service after qualifying HMV vehicle driving trade test and pump mechanics exam.',
+    date: 'Batch 2021'
   },
   {
     id: 'gal-6',
-    title: 'Smart Classroom & Fire Science Theory',
+    title: 'Rajasthan Fire Service - Amit Kumar Swami',
+    category: 'govt_selection',
+    section: 'govt',
+    imageUrl: '/images/candidate-amit.jpg',
+    candidateName: 'Amit Kumar Swami',
+    postOrCompany: 'Rajasthan State Fire Service',
+    description: 'Selected as Fireman in Rajasthan Local Self Government Fire Service Department.',
+    date: 'Batch 2021'
+  },
+  {
+    id: 'gal-7',
+    title: 'Delhi Fire Service (DFS) - Ramesh Puri',
+    category: 'govt_selection',
+    section: 'govt',
+    imageUrl: '/images/candidate-ramesh.jpg',
+    candidateName: 'Ramesh Puri',
+    postOrCompany: 'Delhi Fire Service (DFS)',
+    description: 'Selected as Fire Officer in Delhi Fire Service following DSSSB competitive examination.',
+    date: 'Batch 2020'
+  },
+  {
+    id: 'gal-8',
+    title: 'Delhi Fire Service - Vupin Kumar',
+    category: 'govt_selection',
+    section: 'govt',
+    imageUrl: '/images/candidate-vupin.jpg',
+    candidateName: 'Vupin Kumar',
+    postOrCompany: 'Delhi Fire Service',
+    description: 'Cleared written and physical 1600m ground test for Fireman post in Delhi Fire Service.',
+    date: 'Batch 2021'
+  },
+  {
+    id: 'gal-9',
+    title: 'Industrial Safety Officer - Ankit Kumawat',
+    category: 'private_selection',
+    section: 'private',
+    imageUrl: '/images/candidate-ankit.jpg',
+    candidateName: 'Ankit Kumawat',
+    postOrCompany: 'Mumbai Industrial Complex (MH)',
+    description: 'Placed as Safety Officer in manufacturing plant after completing NCVT Industrial Safety Diploma.',
+    date: 'Batch 2022'
+  },
+  {
+    id: 'gal-10',
+    title: 'Smart Classroom & Fire Science Theory Session',
     category: 'classroom',
-    imageUrl: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=1200',
-    description: 'Interactive lecture on Fire Hydraulics, Pumps & Safety Codes.',
+    section: 'training',
+    imageUrl: '/images/training-thumb-1.jpg',
+    description: 'Interactive audio-visual lecture on Fire Hydraulics, Building Safety Codes, and Hazard Management.',
+    date: 'April 2026'
+  },
+  {
+    id: 'gal-11',
+    title: 'Casualty Stretcher & First Aid Emergency Rescue Drill',
+    category: 'drills',
+    section: 'training',
+    imageUrl: '/images/training-thumb-4.jpg',
+    description: 'Emergency disaster response: rapid stretcher handling, patient stabilization, and first-aid evacuation.',
     date: 'March 2026'
+  },
+  {
+    id: 'gal-12',
+    title: 'Live Foam Fire Suppression Demonstration',
+    category: 'drills',
+    section: 'training',
+    imageUrl: '/images/training-thumb-5.jpg',
+    description: 'Class-B flammable liquid fire combat training using mechanical foam branch pipes.',
+    date: 'February 2026'
   }
 ];
+
+export const INITIAL_SETTINGS: SiteSettings = {
+  tourVideoUrl: 'https://www.youtube.com/watch?v=kYJzX2N8E8s',
+  tourVideoThumbnail: '/images/director-campus-tour.jpg',
+  tourVideoTitle: 'Watch Live Campus Tour - Shri Krishna Fire & Safety Academy',
+  tourVideoHeading: 'WATCH LIVE CAMPUS TOUR',
+  tourVideoHelpline: '+91 96805 05554'
+};
 
 

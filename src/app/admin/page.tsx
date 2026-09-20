@@ -26,10 +26,23 @@ import {
   ShieldCheck,
   Upload,
   Image as ImageIcon,
-  Menu
+  Menu,
+  Loader2,
+  Sparkles,
+  CheckCircle2,
+  Calendar,
+  Building2,
+  User,
+  Tag,
+  Link as LinkIcon,
+  Video,
+  Play,
+  Settings as SettingsIcon
 } from 'lucide-react';
-import { AdmissionLead, ContactEnquiry, Course, RecruitmentNotice, BlogPost, GalleryItem } from '@/types';
-import { INITIAL_COURSES, INITIAL_RECRUITMENTS, INITIAL_BLOGS, INITIAL_GALLERY } from '@/data/initialData';
+import { AdmissionLead, ContactEnquiry, Course, RecruitmentNotice, BlogPost, GalleryItem, SiteSettings } from '@/types';
+import { INITIAL_COURSES, INITIAL_RECRUITMENTS, INITIAL_BLOGS, INITIAL_GALLERY, INITIAL_SETTINGS } from '@/data/initialData';
+import { getYouTubeEmbedUrl } from '@/lib/videoUtils';
+import AcademyLogo from '@/components/AcademyLogo';
 
 const ADMIN_EMAIL = 'info@skfiresafety.in';
 const ADMIN_PASSWORD = 'SKFire@2024';
@@ -40,8 +53,13 @@ export default function AdminDashboardPage() {
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  const [activeTab, setActiveTab] = useState<'leads' | 'contacts' | 'courses' | 'recruitments' | 'blogs' | 'gallery'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'contacts' | 'courses' | 'recruitments' | 'blogs' | 'gallery' | 'settings'>('leads');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Settings State (YouTube Video & Tour Info)
+  const [settings, setSettings] = useState<SiteSettings>(INITIAL_SETTINGS);
+  const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
 
   // Leads state
   const [leads, setLeads] = useState<AdmissionLead[]>([]);
@@ -69,6 +87,8 @@ export default function AdminDashboardPage() {
   const [isAddingPhoto, setIsAddingPhoto] = useState(false);
   const [editingPhoto, setEditingPhoto] = useState<GalleryItem | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [isSavingPhoto, setIsSavingPhoto] = useState(false);
+  const [showManualUrl, setShowManualUrl] = useState(false);
 
   const [photoForm, setPhotoForm] = useState({
     title: '',
@@ -164,9 +184,10 @@ export default function AdminDashboardPage() {
   const handleCreatePhoto = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!photoForm.title || !photoForm.imageUrl) {
-      alert('Please fill in Title and Image URL');
+      alert('Please fill in Title and provide an Image');
       return;
     }
+    setIsSavingPhoto(true);
     try {
       const res = await fetch('/api/gallery', {
         method: 'POST',
@@ -175,7 +196,7 @@ export default function AdminDashboardPage() {
       });
       const data = await res.json();
       if (data.success) {
-        alert('Photo added successfully!');
+        alert('Photo published successfully to gallery!');
         setIsAddingPhoto(false);
         setPhotoForm({
           title: '',
@@ -187,6 +208,7 @@ export default function AdminDashboardPage() {
           postOrCompany: '',
           date: ''
         });
+        setShowManualUrl(false);
         fetchGallery();
       } else {
         alert(data.error || 'Failed to add photo');
@@ -194,12 +216,15 @@ export default function AdminDashboardPage() {
     } catch (err) {
       console.error(err);
       alert('Failed to add photo');
+    } finally {
+      setIsSavingPhoto(false);
     }
   };
 
   const handleUpdatePhoto = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPhoto) return;
+    setIsSavingPhoto(true);
     try {
       const res = await fetch('/api/gallery', {
         method: 'PATCH',
@@ -217,6 +242,8 @@ export default function AdminDashboardPage() {
     } catch (err) {
       console.error(err);
       alert('Failed to update photo');
+    } finally {
+      setIsSavingPhoto(false);
     }
   };
 
@@ -236,33 +263,104 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Video Settings Handlers
+  const fetchSettings = async () => {
+    try {
+      const res = await fetch('/api/settings');
+      const data = await res.json();
+      if (data.success && data.data) {
+        setSettings(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch settings:', err);
+    }
+  };
+
+  const handleSaveSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingSettings(true);
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(settings)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Campus Tour Video & Settings updated successfully!');
+        if (data.data) setSettings(data.data);
+      } else {
+        alert(data.error || 'Failed to save settings');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update settings');
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsUploadingThumbnail(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', files[0]);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (data.success && data.imageUrl) {
+        const newSettings = { ...settings, tourVideoThumbnail: data.imageUrl };
+        setSettings(newSettings);
+        // Auto-save to settings API
+        await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newSettings)
+        });
+        alert('Cover photo uploaded and saved successfully!');
+      } else {
+        alert(data.error || 'Failed to upload thumbnail');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Thumbnail upload failed');
+    } finally {
+      setIsUploadingThumbnail(false);
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
     async function loadInitial() {
       try {
-        const [lRes, cRes, gRes] = await Promise.all([
+        const [lRes, cRes, gRes, sRes] = await Promise.all([
           fetch('/api/admission'),
           fetch('/api/contact'),
-          fetch('/api/gallery')
+          fetch('/api/gallery'),
+          fetch('/api/settings')
         ]);
-        const [lData, cData, gData] = await Promise.all([
+        const [lData, cData, gData, sData] = await Promise.all([
           lRes.json(),
           cRes.json(),
-          gRes.json()
+          gRes.json(),
+          sRes.json()
         ]);
         if (isMounted) {
           if (lData.success) setLeads(lData.data);
           if (cData.success) setContacts(cData.data);
           if (gData.success && gData.data) setGalleryItems(gData.data);
+          if (sData.success && sData.data) setSettings(sData.data);
         }
       } catch (e) {
-        console.error(e);
+        console.error('Error fetching initial dashboard data:', e);
       }
     }
     loadInitial();
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, []);
 
   const handleUpdateLeadStatus = async (id: string, newStatus: AdmissionLead['status']) => {
@@ -393,15 +491,9 @@ export default function AdminDashboardPage() {
       
       {/* Mobile Top Navigation Bar */}
       <div className="lg:hidden bg-neutral-950 text-white p-4 flex items-center justify-between border-b border-neutral-800 sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-red-600 flex items-center justify-center text-white shadow-md">
-            <Flame className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-sm font-black tracking-tight">SK Fire Agency</h1>
-            <p className="text-[10px] text-neutral-400">Admin Control Center</p>
-          </div>
-        </div>
+        <Link href="/" className="flex items-center">
+          <AcademyLogo size="small" variant="dark" />
+        </Link>
 
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -419,17 +511,9 @@ export default function AdminDashboardPage() {
         <div className="space-y-6">
           {/* Brand Header */}
           <div className="hidden lg:flex items-center justify-between border-b border-neutral-800/80 pb-5">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-linear-to-tr from-red-700 to-red-500 flex items-center justify-center text-white shadow-lg shadow-red-600/30">
-                <Flame className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-base font-black tracking-tight text-white">
-                  SK Fire Agency
-                </h1>
-                <p className="text-[10px] font-bold text-neutral-400">Admin Control Portal</p>
-              </div>
-            </div>
+            <Link href="/" className="flex items-center">
+              <AcademyLogo size="medium" variant="dark" />
+            </Link>
 
             <span className="bg-green-500/20 text-green-400 text-[9px] font-black px-2 py-0.5 rounded-full uppercase border border-green-500/30">
               Live
@@ -507,6 +591,23 @@ export default function AdminDashboardPage() {
                     activeTab === 'gallery' ? 'bg-white/20 text-white' : 'bg-neutral-800 text-neutral-400'
                   }`}>
                     {galleryItems.length}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => { setActiveTab('settings'); setIsMobileMenuOpen(false); }}
+                  className={`w-full px-3.5 py-3 rounded-xl text-xs font-extrabold flex items-center justify-between transition-all ${
+                    activeTab === 'settings'
+                      ? 'bg-red-600 text-white shadow-lg shadow-red-600/25'
+                      : 'hover:bg-neutral-900 text-neutral-300 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Video className="w-4 h-4" />
+                    <span>Campus Tour Video</span>
+                  </div>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    Live
                   </span>
                 </button>
               </div>
@@ -1092,39 +1193,439 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-      {/* Add New Photo Modal */}
-      {isAddingPhoto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 space-y-5 relative max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+      {/* Campus Tour Video & Settings Tab */}
+      {activeTab === 'settings' && (
+        <div className="space-y-6 animate-in fade-in">
+          {/* Header Card */}
+          <div className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-red-600 text-white flex items-center justify-center shadow-lg shadow-red-600/30">
+                <Video className="w-6 h-6" />
+              </div>
               <div>
-                <h3 className="text-lg font-black text-neutral-900">Add New Photo / Candidate Selection</h3>
-                <p className="text-xs text-neutral-400">Save photo into Supabase database / local storage</p>
+                <h2 className="text-xl sm:text-2xl font-black text-neutral-900 flex items-center gap-2">
+                  Campus Tour Video & Media Settings
+                  <Sparkles className="w-4 h-4 text-amber-500" />
+                </h2>
+                <p className="text-xs text-neutral-500 font-medium">
+                  Update the official YouTube tour video, director desk thumbnail, and admission helpline displayed on the Homepage.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={fetchSettings}
+              className="px-4 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-bold text-xs rounded-xl flex items-center gap-2 transition-colors self-start md:self-auto"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Reload Settings</span>
+            </button>
+          </div>
+
+          {/* Form & Live Video Player Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            {/* Left: Live YouTube Video Player Preview Card (5 cols) */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="bg-white p-5 sm:p-6 rounded-3xl border border-neutral-200 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+                  <h3 className="font-extrabold text-sm text-neutral-900 flex items-center gap-2">
+                    <Play className="w-4 h-4 text-red-600 fill-red-600" />
+                    <span>Live YouTube Player Preview</span>
+                  </h3>
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">
+                    Live Embed
+                  </span>
+                </div>
+
+                {/* 16:9 Video Embed or Fallback */}
+                <div className="relative aspect-video rounded-2xl overflow-hidden bg-neutral-950 border border-neutral-800 shadow-inner flex items-center justify-center">
+                  {settings.tourVideoUrl ? (
+                    <iframe
+                      src={getYouTubeEmbedUrl(settings.tourVideoUrl, false)}
+                      title="Campus Tour Live Preview"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full border-0"
+                    />
+                  ) : (
+                    <div className="text-center p-4 text-neutral-400 text-xs">
+                      Enter a valid YouTube URL to test live player
+                    </div>
+                  )}
+                </div>
+
+                {/* Thumbnail Preview with Direct Change Option */}
+                <div className="space-y-2.5 pt-3 border-t border-neutral-100">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-neutral-900 flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-red-600" />
+                      <span>Cover Thumbnail Image</span>
+                    </span>
+
+                    {/* Direct Upload Button on Preview Card */}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="direct-cover-photo-file-input"
+                      onChange={handleThumbnailUpload}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="direct-cover-photo-file-input"
+                      className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-black text-[11px] rounded-xl cursor-pointer shadow-md flex items-center gap-1.5 transition-all"
+                    >
+                      {isUploadingThumbnail ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                      ) : (
+                        <Upload className="w-3.5 h-3.5" />
+                      )}
+                      <span>{isUploadingThumbnail ? 'Uploading...' : '📁 Change Cover Photo'}</span>
+                    </label>
+                  </div>
+
+                  {/* Interactive Thumbnail Box with Hover Action */}
+                  <div className="relative aspect-video rounded-2xl overflow-hidden bg-neutral-950 border border-neutral-800 shadow-md group">
+                    <img
+                      src={settings.tourVideoThumbnail || '/images/director-campus-tour.jpg'}
+                      alt="Current Video Cover"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    
+                    {/* Hover Overlay */}
+                    <label
+                      htmlFor="direct-cover-photo-file-input"
+                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 cursor-pointer backdrop-blur-xs"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg">
+                        <Upload className="w-5 h-5" />
+                      </div>
+                      <span className="text-xs font-black text-white bg-black/60 px-3 py-1 rounded-full border border-white/20">
+                        Click to Choose New Photo
+                      </span>
+                    </label>
+
+                    {/* Bottom Status Tag */}
+                    <span className="absolute bottom-2 left-2 bg-neutral-950/85 text-white text-[10px] font-bold px-2 py-0.5 rounded backdrop-blur-md border border-neutral-800 pointer-events-none">
+                      Active Cover Photo
+                    </span>
+                  </div>
+
+                  {/* URL path indicator */}
+                  <div className="text-[10px] text-neutral-400 font-mono truncate px-1">
+                    Path: {settings.tourVideoThumbnail || '/images/director-campus-tour.jpg'}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Right: Configuration Form (7 cols) */}
+            <div className="lg:col-span-7">
+              <form onSubmit={handleSaveSettings} className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200 shadow-sm space-y-5">
+                
+                <div className="border-b border-neutral-100 pb-3">
+                  <h3 className="text-base font-black text-neutral-900">
+                    Edit Video Details & Links
+                  </h3>
+                  <p className="text-xs text-neutral-400">Changes save instantly to the database and update on the live website.</p>
+                </div>
+
+                {/* YouTube Video URL */}
+                <div>
+                  <label className="block mb-1.5 text-xs font-black text-neutral-900 flex items-center gap-1.5">
+                    <Video className="w-4 h-4 text-red-600" />
+                    <span>Real YouTube Video URL *</span>
+                  </label>
+                  <input
+                    type="url"
+                    required
+                    value={settings.tourVideoUrl}
+                    onChange={(e) => setSettings({ ...settings, tourVideoUrl: e.target.value })}
+                    placeholder="e.g., https://www.youtube.com/watch?v=kYJzX2N8E8s or https://youtu.be/..."
+                    className="w-full px-4 py-3 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-bold text-neutral-900 transition-all font-mono"
+                  />
+                  <p className="mt-1.5 text-[11px] text-neutral-500 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    Supports standard watch URLs, short links (`youtu.be`), and YouTube Shorts.
+                  </p>
+                </div>
+
+                {/* Video Heading & Subtitle Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block mb-1.5 text-xs font-black text-neutral-900">
+                      Section Heading
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={settings.tourVideoHeading}
+                      onChange={(e) => setSettings({ ...settings, tourVideoHeading: e.target.value })}
+                      placeholder="e.g., WATCH LIVE CAMPUS TOUR"
+                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-bold text-neutral-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-1.5 text-xs font-black text-neutral-900">
+                      Admission Helpline Phone
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={settings.tourVideoHelpline}
+                      onChange={(e) => setSettings({ ...settings, tourVideoHelpline: e.target.value })}
+                      placeholder="e.g., +91 96805 05554"
+                      className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-bold text-neutral-900"
+                    />
+                  </div>
+                </div>
+
+                {/* Video Modal Title */}
+                <div>
+                  <label className="block mb-1.5 text-xs font-black text-neutral-900">
+                    Video Modal Player Title
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={settings.tourVideoTitle}
+                    onChange={(e) => setSettings({ ...settings, tourVideoTitle: e.target.value })}
+                    placeholder="e.g., Watch Live Campus Tour - Shri Krishna Fire & Safety Academy"
+                    className="w-full px-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                {/* Thumbnail Image Management */}
+                <div className="space-y-2 pt-2 border-t border-neutral-100">
+                  <label className="block text-xs font-black text-neutral-900">
+                    Video Cover Thumbnail Image
+                  </label>
+                  
+                  <div className="flex flex-col sm:flex-row items-center gap-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      id="tour-thumbnail-file-input"
+                      onChange={handleThumbnailUpload}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="tour-thumbnail-file-input"
+                      className="w-full sm:w-auto px-4 py-2.5 bg-neutral-900 hover:bg-red-600 text-white font-bold text-xs rounded-xl cursor-pointer shadow-sm flex items-center justify-center gap-2 transition-colors shrink-0"
+                    >
+                      {isUploadingThumbnail ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      ) : (
+                        <Upload className="w-4 h-4" />
+                      )}
+                      <span>{isUploadingThumbnail ? 'Uploading Image...' : '📁 Upload New Thumbnail'}</span>
+                    </label>
+
+                    <input
+                      type="text"
+                      value={settings.tourVideoThumbnail}
+                      onChange={(e) => setSettings({ ...settings, tourVideoThumbnail: e.target.value })}
+                      placeholder="/images/director-campus-tour.jpg or https://..."
+                      className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none text-xs font-mono"
+                    />
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="pt-4 border-t border-neutral-100 flex items-center justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSavingSettings || isUploadingThumbnail}
+                    className="px-6 py-3 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-lg shadow-red-600/30 flex items-center gap-2 transition-all cursor-pointer"
+                  >
+                    {isSavingSettings ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Saving Settings...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Save & Publish Video Settings</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+              </form>
+            </div>
+
+          </div>
+        </div>
+      )}
+      {isAddingPhoto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-neutral-200 overflow-hidden relative max-h-[92vh] flex flex-col animate-in zoom-in-95">
+            {/* Header */}
+            <div className="px-6 py-4 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-red-600/90 flex items-center justify-center text-white shadow-lg shadow-red-600/30">
+                  <Camera className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
+                    Add New Gallery Photo & Selection
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                  </h3>
+                  <p className="text-[11px] text-neutral-400 font-medium">Upload candidate photos, campus drills, and achievements</p>
+                </div>
               </div>
               <button
-                onClick={() => setIsAddingPhoto(false)}
-                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100"
+                onClick={() => {
+                  setIsAddingPhoto(false);
+                  setShowManualUrl(false);
+                }}
+                className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white flex items-center justify-center transition-colors"
+                aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleCreatePhoto} className="space-y-4 text-xs font-bold text-neutral-700">
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleCreatePhoto} className="p-6 overflow-y-auto space-y-5 text-xs font-bold text-neutral-700 flex-1">
+              
+              {/* Photo Upload & Preview Section */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black text-neutral-900 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-red-600" />
+                    Upload Photo Image *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowManualUrl(!showManualUrl)}
+                    className="text-[11px] text-red-600 hover:text-red-700 font-bold flex items-center gap-1 hover:underline"
+                  >
+                    <LinkIcon className="w-3 h-3" />
+                    {showManualUrl ? 'Hide manual URL input' : 'Paste Image URL instead'}
+                  </button>
+                </div>
+
+                {/* Hidden File Input */}
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="add-photo-file-input"
+                  onChange={(e) => handleFileUpload(e, false)}
+                  className="hidden"
+                />
+
+                {/* If Image is Uploaded/Present -> Show High-Quality Uncropped Preview */}
+                {photoForm.imageUrl ? (
+                  <div className="bg-neutral-950 rounded-2xl border border-neutral-800 p-3 relative overflow-hidden flex flex-col items-center justify-center min-h-[220px] max-h-[340px] shadow-inner group">
+                    <img
+                      src={photoForm.imageUrl}
+                      alt="Selected Photo Preview"
+                      className="max-h-[260px] w-auto h-auto object-contain rounded-xl shadow-2xl transition-transform"
+                    />
+                    
+                    {/* Top Status & Action Bar */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/90 text-white text-[10px] font-black backdrop-blur-md shadow-lg pointer-events-auto">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Photo Ready
+                      </span>
+                      <div className="flex items-center gap-2 pointer-events-auto">
+                        <label
+                          htmlFor="add-photo-file-input"
+                          className="px-3 py-1.5 bg-neutral-900/90 hover:bg-neutral-800 text-white text-[11px] font-bold rounded-xl cursor-pointer shadow-md border border-neutral-700 backdrop-blur-md flex items-center gap-1.5 transition-all"
+                        >
+                          <Upload className="w-3.5 h-3.5 text-red-400" />
+                          Change Photo
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setPhotoForm({ ...photoForm, imageUrl: '' })}
+                          className="p-1.5 bg-red-600/90 hover:bg-red-700 text-white rounded-xl shadow-md backdrop-blur-md transition-all"
+                          title="Remove Photo"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Bottom File Path Pill */}
+                    <div className="absolute bottom-2 left-3 right-3 text-center pointer-events-none">
+                      <span className="inline-block px-3 py-0.5 bg-neutral-900/80 backdrop-blur-md rounded-md text-[10px] text-neutral-300 font-mono max-w-full truncate border border-neutral-800">
+                        {photoForm.imageUrl}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  /* Drag & Drop Upload Zone when No Photo Selected */
+                  <label
+                    htmlFor="add-photo-file-input"
+                    className="border-2 border-dashed border-neutral-300 hover:border-red-500 rounded-2xl p-6 text-center bg-neutral-50/70 hover:bg-red-50/30 transition-all cursor-pointer flex flex-col items-center justify-center space-y-3 group"
+                  >
+                    <div className="w-14 h-14 rounded-2xl bg-red-100 group-hover:bg-red-600 text-red-600 group-hover:text-white flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-105">
+                      {isUploadingPhoto ? (
+                        <Loader2 className="w-7 h-7 animate-spin text-red-600" />
+                      ) : (
+                        <Upload className="w-7 h-7" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-black text-neutral-900 group-hover:text-red-600 transition-colors">
+                        {isUploadingPhoto ? 'Uploading to Server...' : '📁 Click to Choose Photo from Computer / Phone'}
+                      </p>
+                      <p className="text-[11px] text-neutral-400 font-semibold mt-1">
+                        High resolution JPG, PNG, WEBP, or GIF supported
+                      </p>
+                    </div>
+                    <span className="px-4 py-1.5 bg-neutral-900 group-hover:bg-red-600 text-white text-[11px] font-black rounded-xl shadow-sm transition-colors">
+                      Browse Local Files
+                    </span>
+                  </label>
+                )}
+
+                {/* Manual URL Input (Collapsible or if active) */}
+                {showManualUrl && (
+                  <div className="pt-2 animate-in fade-in">
+                    <label className="block text-[11px] text-neutral-500 font-bold mb-1">
+                      Direct Photo Web URL / Path:
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={photoForm.imageUrl}
+                      onChange={(e) => setPhotoForm({ ...photoForm, imageUrl: e.target.value })}
+                      placeholder="https://... or /uploads/..."
+                      className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none text-xs font-mono"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Title & Caption */}
               <div>
-                <label className="block mb-1">Title / Caption *</label>
+                <label className="block mb-1.5 text-xs font-black text-neutral-900">
+                  Title / Caption *
+                </label>
                 <input
                   type="text"
                   required
                   value={photoForm.title}
                   onChange={(e) => setPhotoForm({ ...photoForm, title: e.target.value })}
-                  placeholder="e.g. Selected as Fireman in Delhi Fire Service"
-                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
+                  placeholder="e.g., Selected as Fireman in Delhi Fire Service / Live Rescue Drill"
+                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-medium text-neutral-900 transition-all"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Category & Date Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block mb-1">Category *</label>
+                  <label className="block mb-1.5 text-xs font-black text-neutral-900 flex items-center gap-1">
+                    <Tag className="w-3.5 h-3.5 text-red-600" />
+                    Category *
+                  </label>
                   <select
                     value={photoForm.category}
                     onChange={(e) => {
@@ -1132,121 +1633,113 @@ export default function AdminDashboardPage() {
                       const sec = cat === 'govt_selection' ? 'govt' : cat === 'private_selection' ? 'private' : 'training';
                       setPhotoForm({ ...photoForm, category: cat, section: sec });
                     }}
-                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-bold text-neutral-900 transition-all cursor-pointer"
                   >
-                    <option value="govt_selection">🏛️ Govt. Selection (Sarkari)</option>
-                    <option value="private_selection">🏢 Private Selection (Corporate)</option>
-                    <option value="ground">Physical Ground (400m Track)</option>
-                    <option value="classroom">Classroom & Theory</option>
-                    <option value="drills">Live Fire Drills</option>
-                    <option value="celebration">Result Celebration</option>
-                    <option value="hostel">Hostel & Campus</option>
+                    <option value="govt_selection">🏛️ Govt. Selection (Sarkari Bharti)</option>
+                    <option value="private_selection">🏢 Private Selection (Corporate Placement)</option>
+                    <option value="ground">🏃 Physical Ground (400m Track & Drills)</option>
+                    <option value="classroom">📚 Classroom & Theory Session</option>
+                    <option value="drills">🔥 Live Fire Drills & Hose Training</option>
+                    <option value="celebration">🏆 Result & Certificate Celebration</option>
+                    <option value="hostel">🏢 Hostel & Campus Facility</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block mb-1">Date</label>
+                  <label className="block mb-1.5 text-xs font-black text-neutral-900 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-red-600" />
+                    Date / Batch
+                  </label>
                   <input
                     type="text"
                     value={photoForm.date}
                     onChange={(e) => setPhotoForm({ ...photoForm, date: e.target.value })}
-                    placeholder="e.g. August 2026"
-                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
+                    placeholder="e.g., September 2026 or 15/09/2026"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-medium text-neutral-900 transition-all"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block mb-1">Candidate Name (Optional)</label>
-                  <input
-                    type="text"
-                    value={photoForm.candidateName}
-                    onChange={(e) => setPhotoForm({ ...photoForm, candidateName: e.target.value })}
-                    placeholder="e.g. Vikram Singh"
-                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
-                  />
+              {/* Candidate Selection Details (Highlighted Card) */}
+              <div className="bg-amber-50/60 border border-amber-200/90 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center gap-2 text-amber-950 font-black text-xs">
+                  <Award className="w-4 h-4 text-amber-600" />
+                  <span>Candidate & Placement Details (Optional for selections)</span>
                 </div>
-
-                <div>
-                  <label className="block mb-1">Post / Company (Optional)</label>
-                  <input
-                    type="text"
-                    value={photoForm.postOrCompany}
-                    onChange={(e) => setPhotoForm({ ...photoForm, postOrCompany: e.target.value })}
-                    placeholder="e.g. Delhi Fire Service (Rank 14)"
-                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block mb-1 font-bold text-neutral-800">Upload Photo from Computer / Phone *</label>
-                <div className="border-2 border-dashed border-neutral-300 hover:border-red-500 rounded-2xl p-4 text-center bg-neutral-50 hover:bg-red-50/40 transition-all">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id="add-photo-file-input"
-                    onChange={(e) => handleFileUpload(e, false)}
-                    className="hidden"
-                  />
-                  <label htmlFor="add-photo-file-input" className="cursor-pointer flex flex-col items-center justify-center space-y-1.5">
-                    <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shadow-sm">
-                      <Upload className="w-5 h-5" />
-                    </div>
-                    <p className="text-xs font-black text-neutral-900">
-                      {isUploadingPhoto ? 'Uploading Photo...' : '📁 Click to Choose Photo File from Device'}
-                    </p>
-                    <p className="text-[10px] text-neutral-400 font-semibold">Supports JPG, PNG, WEBP, GIF</p>
-                  </label>
-                </div>
-
-                <div className="mt-2.5">
-                  <span className="text-[10px] text-neutral-400 font-bold block mb-1">Or enter image URL manually:</span>
-                  <input
-                    type="url"
-                    required
-                    value={photoForm.imageUrl}
-                    onChange={(e) => setPhotoForm({ ...photoForm, imageUrl: e.target.value })}
-                    placeholder="https://..."
-                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none text-xs"
-                  />
-                </div>
-
-                {photoForm.imageUrl && (
-                  <div className="mt-2.5 h-32 rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-200 relative group">
-                    <img src={photoForm.imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                    <span className="absolute bottom-2 left-2 bg-neutral-950/90 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
-                      Selected Photo Preview
-                    </span>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block mb-1 text-[11px] font-bold text-amber-900 flex items-center gap-1">
+                      <User className="w-3 h-3 text-amber-700" />
+                      Candidate Full Name
+                    </label>
+                    <input
+                      type="text"
+                      value={photoForm.candidateName}
+                      onChange={(e) => setPhotoForm({ ...photoForm, candidateName: e.target.value })}
+                      placeholder="e.g. Himanshu Yadav"
+                      className="w-full px-3.5 py-2 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none text-xs font-medium text-neutral-900"
+                    />
                   </div>
-                )}
+
+                  <div>
+                    <label className="block mb-1 text-[11px] font-bold text-amber-900 flex items-center gap-1">
+                      <Building2 className="w-3 h-3 text-amber-700" />
+                      Post / Department / Company
+                    </label>
+                    <input
+                      type="text"
+                      value={photoForm.postOrCompany}
+                      onChange={(e) => setPhotoForm({ ...photoForm, postOrCompany: e.target.value })}
+                      placeholder="e.g. Delhi Fire Service (Rank 14)"
+                      className="w-full px-3.5 py-2 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none text-xs font-medium text-neutral-900"
+                    />
+                  </div>
+                </div>
               </div>
 
+              {/* Description / Extra Info */}
               <div>
-                <label className="block mb-1">Description</label>
+                <label className="block mb-1.5 text-xs font-black text-neutral-900">
+                  Description / Achievement Notes (Optional)
+                </label>
                 <textarea
                   rows={2}
                   value={photoForm.description}
                   onChange={(e) => setPhotoForm({ ...photoForm, description: e.target.value })}
-                  placeholder="Brief description about the selection or workout..."
-                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
+                  placeholder="Brief story, rank information, or drill workout notes..."
+                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-medium text-neutral-900 resize-none transition-all"
                 />
               </div>
 
-              <div className="pt-3 border-t border-neutral-100 flex items-center justify-end gap-3">
+              {/* Footer Actions */}
+              <div className="pt-4 border-t border-neutral-100 flex items-center justify-between gap-3">
                 <button
                   type="button"
-                  onClick={() => setIsAddingPhoto(false)}
-                  className="px-4 py-2.5 bg-neutral-100 text-neutral-700 font-bold rounded-xl"
+                  onClick={() => {
+                    setIsAddingPhoto(false);
+                    setShowManualUrl(false);
+                  }}
+                  className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-extrabold rounded-xl transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-red-600 text-white font-extrabold rounded-xl shadow-md"
+                  disabled={isSavingPhoto || isUploadingPhoto || !photoForm.imageUrl}
+                  className="px-6 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black rounded-xl shadow-lg shadow-red-600/30 flex items-center gap-2 transition-all cursor-pointer"
                 >
-                  Save Photo
+                  {isSavingPhoto ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Saving & Publishing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Save & Publish Photo</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -1256,36 +1749,115 @@ export default function AdminDashboardPage() {
 
       {/* Edit Photo Modal */}
       {editingPhoto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 space-y-5 relative max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
-              <div>
-                <h3 className="text-lg font-black text-neutral-900">Edit Photo Details</h3>
-                <span className="text-[10px] font-mono text-red-600 font-bold">ID: {editingPhoto.id}</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in">
+          <div className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-neutral-200 overflow-hidden relative max-h-[92vh] flex flex-col animate-in zoom-in-95">
+            {/* Header */}
+            <div className="px-6 py-4 bg-neutral-900 text-white flex items-center justify-between border-b border-neutral-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-red-600/90 flex items-center justify-center text-white shadow-lg shadow-red-600/30">
+                  <Edit3 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
+                    Edit Photo Details
+                    <span className="text-[10px] font-mono px-2 py-0.5 bg-neutral-800 text-red-400 rounded-md font-bold">
+                      ID: {editingPhoto.id}
+                    </span>
+                  </h3>
+                  <p className="text-[11px] text-neutral-400 font-medium">Update candidate information, category, or replace photo</p>
+                </div>
               </div>
               <button
                 onClick={() => setEditingPhoto(null)}
-                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100"
+                className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white flex items-center justify-center transition-colors"
+                aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleUpdatePhoto} className="space-y-4 text-xs font-bold text-neutral-700">
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleUpdatePhoto} className="p-6 overflow-y-auto space-y-5 text-xs font-bold text-neutral-700 flex-1">
+              
+              {/* Photo Preview & Replace */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-black text-neutral-900 flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-red-600" />
+                    Current Photo Preview & File *
+                  </label>
+                  <label
+                    htmlFor="edit-photo-file-input"
+                    className="text-[11px] text-red-600 hover:text-red-700 font-bold flex items-center gap-1 cursor-pointer hover:underline"
+                  >
+                    <Upload className="w-3 h-3" />
+                    Replace Image File
+                  </label>
+                </div>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  id="edit-photo-file-input"
+                  onChange={(e) => handleFileUpload(e, true)}
+                  className="hidden"
+                />
+
+                {editingPhoto.imageUrl && (
+                  <div className="bg-neutral-950 rounded-2xl border border-neutral-800 p-3 relative overflow-hidden flex flex-col items-center justify-center min-h-[220px] max-h-[340px] shadow-inner group">
+                    <img
+                      src={editingPhoto.imageUrl}
+                      alt="Current Photo Preview"
+                      className="max-h-[260px] w-auto h-auto object-contain rounded-xl shadow-2xl transition-transform"
+                    />
+
+                    {/* Top Overlay Actions */}
+                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/90 text-white text-[10px] font-black backdrop-blur-md shadow-lg pointer-events-auto">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        Current Photo
+                      </span>
+                      <label
+                        htmlFor="edit-photo-file-input"
+                        className="px-3 py-1.5 bg-neutral-900/90 hover:bg-neutral-800 text-white text-[11px] font-bold rounded-xl cursor-pointer shadow-md border border-neutral-700 backdrop-blur-md flex items-center gap-1.5 transition-all pointer-events-auto"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-red-400" />
+                        {isUploadingPhoto ? 'Uploading...' : 'Replace Photo'}
+                      </label>
+                    </div>
+
+                    {/* Bottom URL Pill */}
+                    <div className="absolute bottom-2 left-3 right-3 text-center pointer-events-none">
+                      <span className="inline-block px-3 py-0.5 bg-neutral-900/80 backdrop-blur-md rounded-md text-[10px] text-neutral-300 font-mono max-w-full truncate border border-neutral-800">
+                        {editingPhoto.imageUrl}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Title / Caption */}
               <div>
-                <label className="block mb-1">Title / Caption *</label>
+                <label className="block mb-1.5 text-xs font-black text-neutral-900">
+                  Title / Caption *
+                </label>
                 <input
                   type="text"
                   required
                   value={editingPhoto.title}
                   onChange={(e) => setEditingPhoto({ ...editingPhoto, title: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
+                  placeholder="Title or caption"
+                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-medium text-neutral-900 transition-all"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Category & Date Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block mb-1">Category *</label>
+                  <label className="block mb-1.5 text-xs font-black text-neutral-900 flex items-center gap-1">
+                    <Tag className="w-3.5 h-3.5 text-red-600" />
+                    Category *
+                  </label>
                   <select
                     value={editingPhoto.category}
                     onChange={(e) => {
@@ -1293,116 +1865,110 @@ export default function AdminDashboardPage() {
                       const sec = cat === 'govt_selection' ? 'govt' : cat === 'private_selection' ? 'private' : 'training';
                       setEditingPhoto({ ...editingPhoto, category: cat, section: sec as any });
                     }}
-                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-bold text-neutral-900 transition-all cursor-pointer"
                   >
-                    <option value="govt_selection">🏛️ Govt. Selection (Sarkari)</option>
-                    <option value="private_selection">🏢 Private Selection (Corporate)</option>
-                    <option value="ground">Physical Ground (400m Track)</option>
-                    <option value="classroom">Classroom & Theory</option>
-                    <option value="drills">Live Fire Drills</option>
-                    <option value="celebration">Result Celebration</option>
-                    <option value="hostel">Hostel & Campus</option>
+                    <option value="govt_selection">🏛️ Govt. Selection (Sarkari Bharti)</option>
+                    <option value="private_selection">🏢 Private Selection (Corporate Placement)</option>
+                    <option value="ground">🏃 Physical Ground (400m Track & Drills)</option>
+                    <option value="classroom">📚 Classroom & Theory Session</option>
+                    <option value="drills">🔥 Live Fire Drills & Hose Training</option>
+                    <option value="celebration">🏆 Result & Certificate Celebration</option>
+                    <option value="hostel">🏢 Hostel & Campus Facility</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block mb-1">Date</label>
+                  <label className="block mb-1.5 text-xs font-black text-neutral-900 flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-red-600" />
+                    Date / Batch
+                  </label>
                   <input
                     type="text"
                     value={editingPhoto.date || ''}
                     onChange={(e) => setEditingPhoto({ ...editingPhoto, date: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
+                    placeholder="e.g., September 2026"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-medium text-neutral-900 transition-all"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block mb-1">Candidate Name</label>
-                  <input
-                    type="text"
-                    value={editingPhoto.candidateName || ''}
-                    onChange={(e) => setEditingPhoto({ ...editingPhoto, candidateName: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
-                  />
+              {/* Candidate Selection Details (Highlighted Card) */}
+              <div className="bg-amber-50/60 border border-amber-200/90 rounded-2xl p-4 space-y-3">
+                <div className="flex items-center gap-2 text-amber-950 font-black text-xs">
+                  <Award className="w-4 h-4 text-amber-600" />
+                  <span>Candidate & Placement Details</span>
                 </div>
-
-                <div>
-                  <label className="block mb-1">Post / Company</label>
-                  <input
-                    type="text"
-                    value={editingPhoto.postOrCompany || ''}
-                    onChange={(e) => setEditingPhoto({ ...editingPhoto, postOrCompany: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block mb-1 font-bold text-neutral-800">Upload New Photo / Replace File *</label>
-                <div className="border-2 border-dashed border-neutral-300 hover:border-red-500 rounded-2xl p-4 text-center bg-neutral-50 hover:bg-red-50/40 transition-all">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id="edit-photo-file-input"
-                    onChange={(e) => handleFileUpload(e, true)}
-                    className="hidden"
-                  />
-                  <label htmlFor="edit-photo-file-input" className="cursor-pointer flex flex-col items-center justify-center space-y-1.5">
-                    <div className="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shadow-sm">
-                      <Upload className="w-5 h-5" />
-                    </div>
-                    <p className="text-xs font-black text-neutral-900">
-                      {isUploadingPhoto ? 'Uploading Photo...' : '📁 Click to Choose New Photo File from Device'}
-                    </p>
-                    <p className="text-[10px] text-neutral-400 font-semibold">Supports JPG, PNG, WEBP, GIF</p>
-                  </label>
-                </div>
-
-                <div className="mt-2.5">
-                  <span className="text-[10px] text-neutral-400 font-bold block mb-1">Or update image URL manually:</span>
-                  <input
-                    type="url"
-                    required
-                    value={editingPhoto.imageUrl}
-                    onChange={(e) => setEditingPhoto({ ...editingPhoto, imageUrl: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none text-xs"
-                  />
-                </div>
-
-                {editingPhoto.imageUrl && (
-                  <div className="mt-2.5 h-32 rounded-2xl overflow-hidden bg-neutral-900 border border-neutral-200 relative">
-                    <img src={editingPhoto.imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                    <span className="absolute bottom-2 left-2 bg-neutral-950/90 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">
-                      Current Photo Preview
-                    </span>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block mb-1 text-[11px] font-bold text-amber-900 flex items-center gap-1">
+                      <User className="w-3 h-3 text-amber-700" />
+                      Candidate Full Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editingPhoto.candidateName || ''}
+                      onChange={(e) => setEditingPhoto({ ...editingPhoto, candidateName: e.target.value })}
+                      placeholder="e.g. Vikram Singh"
+                      className="w-full px-3.5 py-2 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none text-xs font-medium text-neutral-900"
+                    />
                   </div>
-                )}
+
+                  <div>
+                    <label className="block mb-1 text-[11px] font-bold text-amber-900 flex items-center gap-1">
+                      <Building2 className="w-3 h-3 text-amber-700" />
+                      Post / Department / Company
+                    </label>
+                    <input
+                      type="text"
+                      value={editingPhoto.postOrCompany || ''}
+                      onChange={(e) => setEditingPhoto({ ...editingPhoto, postOrCompany: e.target.value })}
+                      placeholder="e.g. Delhi Fire Service (Rank 14)"
+                      className="w-full px-3.5 py-2 bg-white border border-amber-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none text-xs font-medium text-neutral-900"
+                    />
+                  </div>
+                </div>
               </div>
 
+              {/* Description */}
               <div>
-                <label className="block mb-1">Description</label>
+                <label className="block mb-1.5 text-xs font-black text-neutral-900">
+                  Description / Achievement Notes
+                </label>
                 <textarea
                   rows={2}
                   value={editingPhoto.description || ''}
                   onChange={(e) => setEditingPhoto({ ...editingPhoto, description: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:outline-none"
+                  placeholder="Brief notes..."
+                  className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white focus:outline-none text-xs font-medium text-neutral-900 resize-none transition-all"
                 />
               </div>
 
-              <div className="pt-3 border-t border-neutral-100 flex items-center justify-end gap-3">
+              {/* Footer Actions */}
+              <div className="pt-4 border-t border-neutral-100 flex items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setEditingPhoto(null)}
-                  className="px-4 py-2.5 bg-neutral-100 text-neutral-700 font-bold rounded-xl"
+                  className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-extrabold rounded-xl transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-red-600 text-white font-extrabold rounded-xl shadow-md"
+                  disabled={isSavingPhoto || isUploadingPhoto}
+                  className="px-6 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black rounded-xl shadow-lg shadow-red-600/30 flex items-center gap-2 transition-all cursor-pointer"
                 >
-                  Update Photo
+                  {isSavingPhoto ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Updating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Update Photo Details</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

@@ -124,7 +124,7 @@ export default function AdmissionModal({
               Online Admission Registration Form
             </h3>
             <p className="text-xs text-neutral-400">
-              Shri Krishna Fire & Safety Academy (Pawta Jaipur)
+              Shri Krishna Fire & Safety Academy (Paota Jaipur)
             </p>
           </div>
           <button

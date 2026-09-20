@@ -31,15 +31,15 @@ export default function BlogListPage() {
     },
     {
       q: 'What driving license is needed for Fire Operator & Driver post?',
-      a: 'A valid Heavy Motor Vehicle (HMV) driving license is required. At Shri Krishna Fire Academy Pawta, we conduct practical driving tests on our own Fire Tender vehicle.'
+      a: 'A valid Heavy Motor Vehicle (HMV) driving license is required. At Shri Krishna Fire Academy Paota, we conduct practical driving tests on our own Fire Tender vehicle.'
     },
     {
       q: 'Are NCVT approved ITI & Fire Safety diploma courses available?',
-      a: 'Yes, Shri Krishna Fire and Safety Academy (Pawta Jaipur) offers NCVT approved ITI, Fireman, Fire Driver, and Sub Fire Officer (SFO) diploma courses.'
+      a: 'Yes, Shri Krishna Fire and Safety Academy (Paota Jaipur) offers NCVT approved ITI, Fireman, Fire Driver, and Sub Fire Officer (SFO) diploma courses.'
     },
     {
       q: 'How can I take admission in the new target batch?',
-      a: 'You can apply online via our website form or contact our Pawta Jaipur admission helpline directly at +91 9680505554 / 8696715101.'
+      a: 'You can apply online via our website form or contact our Paota Jaipur admission helpline directly at +91 9680505554 / 8696715101.'
     }
   ];
 

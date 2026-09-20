@@ -157,7 +157,7 @@ export default function BlogPostDetailPage({ params }: { params: Promise<{ slug:
                 Join Shri Krishna Fire Academy Batch
               </h3>
               <p className="text-xs text-neutral-600 leading-relaxed">
-                Written exam coaching + daily 400m physical ground workouts with residential hostel in Pawta, Jaipur.
+                Written exam coaching + daily 400m physical ground workouts with residential hostel in Paota, Jaipur.
               </p>
               <Link
                 href="/admission"
@@ -174,7 +174,7 @@ export default function BlogPostDetailPage({ params }: { params: Promise<{ slug:
                 <span>Admission Helpline</span>
               </h4>
               <p className="text-xs text-neutral-600">
-                Call our Pawta Jaipur counselor for batch dates and hostel information.
+                Call our Paota Jaipur counselor for batch dates and hostel information.
               </p>
               <a
                 href="tel:+919680505554"

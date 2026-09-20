@@ -6,25 +6,26 @@ import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
 
 export const metadata: Metadata = {
-  title: "SK Fire Agency | Best Fire Guard, Fireman & Fire Operator Exam Coaching Institute",
-  description: "SK Fire Agency is India's premier coaching academy for Fire Guard, Fireman, Fire Operator, DFS, CISF, and State Fire Service written exam preparation and physical ground training.",
+  title: "Shri Krishna Fire & Safety Academy (Paota, Jaipur) | Premier Fireman & Safety Training Institute",
+  description: "Shri Krishna Fire & Safety Academy (Est. 2014) is Rajasthan's leading institute for Fire Guard, Fireman, Fire Driver/Operator, DFS, CISF, and Industrial Safety courses with 400m physical ground and hostel facilities in Paota, Jaipur.",
   keywords: [
-    "Fire Guard Coaching",
-    "Fireman Exam Preparation",
-    "SK Fire Agency",
+    "Shri Krishna Fire and Safety Academy",
+    "SK Fire Academy Paota",
+    "Fireman Coaching Jaipur",
+    "Fire Guard Preparation",
     "Fire Operator Driver Batch",
+    "CISF Fireman Physical Ground",
     "Delhi Fire Service DSSSB Coaching",
-    "CISF Fireman Physical Training",
-    "Fire Safety Diploma Coaching",
-    "Fireman Physical Ground"
+    "NCVT Fire Safety Diploma",
+    "Fire Safety Academy Rajasthan"
   ],
-  authors: [{ name: "SK Fire Agency" }],
+  authors: [{ name: "Shri Krishna Fire & Safety Academy" }],
   openGraph: {
-    title: "SK Fire Agency - #1 Fire & Safety Coaching Institute",
-    description: "Dedicated coaching for Fire Guard, Fireman, Fire Operator, and Fire Physical Ground Training with hostel facility.",
+    title: "Shri Krishna Fire & Safety Academy — #1 Fire & Safety Institute",
+    description: "Dedicated coaching for Fire Guard, Fireman, Fire Driver, and Practical Physical Ground Training with residential hostel in Paota, Jaipur.",
     type: "website",
     locale: "en_IN",
-    siteName: "SK Fire Agency Coaching"
+    siteName: "Shri Krishna Fire & Safety Academy"
   }
 };
 

@@ -127,9 +127,15 @@ CREATE POLICY "Public Update Storage Access"
   ON storage.objects FOR UPDATE TO public 
   USING (bucket_id = 'gallery-photos');
 
-CREATE POLICY "Public Delete Storage Access" 
-  ON storage.objects FOR DELETE TO public 
-  USING (bucket_id = 'gallery-photos');
+-- --------------------------------------------------------
+-- 5. ROLE PERMISSIONS (GRANT ALL TO anon & authenticated)
+-- --------------------------------------------------------
+GRANT ALL ON TABLE public.gallery_items TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.admission_leads TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.contact_enquiries TO anon, authenticated, service_role;
+
+-- Allow sequence usage if any
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
 
 -- ========================================================
 -- SCHEMA CREATION COMPLETED SUCCESSFULLY!

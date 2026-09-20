@@ -124,3 +124,11 @@ export interface GalleryItem {
   postOrCompany?: string;
   date?: string;
 }
+
+export interface SiteSettings {
+  tourVideoUrl: string;
+  tourVideoThumbnail: string;
+  tourVideoTitle: string;
+  tourVideoHeading: string;
+  tourVideoHelpline: string;
+}

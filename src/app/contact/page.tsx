@@ -98,7 +98,7 @@ export default function ContactPage() {
                   <div>
                     <span className="block font-semibold text-neutral-900 text-xs uppercase tracking-wider text-neutral-500 mb-0.5">Campus Location</span>
                     <p className="text-neutral-800 leading-snug">
-                      Ram Vihar Colony, Near S.H.M. College, Pawta, Jaipur, Rajasthan (303106)
+                      Ram Vihar Colony, Near S.H.M. College, Paota, Jaipur, Rajasthan (303106)
                     </p>
                   </div>
                 </div>
@@ -160,11 +160,11 @@ export default function ContactPage() {
               <div className="space-y-3 text-xs sm:text-sm text-neutral-600 leading-relaxed">
                 <div className="flex items-start gap-3">
                   <Train className="w-4 h-4 text-neutral-400 shrink-0 mt-0.5" />
-                  <span><strong>By Train:</strong> Nearest Junction Station is easily accessible. Direct e-rickshaws and cabs available to Pawta S.H.M. College Circle.</span>
+                  <span><strong>By Train:</strong> Nearest Junction Station is easily accessible. Direct e-rickshaws and cabs available to Paota S.H.M. College Circle.</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <Bus className="w-4 h-4 text-neutral-400 shrink-0 mt-0.5" />
-                  <span><strong>By Bus:</strong> Pawta Bus Stop is within 1 Km distance on Jaipur-Delhi Highway.</span>
+                  <span><strong>By Bus:</strong> Paota Bus Stop is within 1 Km distance on Jaipur-Delhi Highway.</span>
                 </div>
               </div>
             </div>
@@ -321,7 +321,7 @@ export default function ContactPage() {
                   <MapPin className="w-4 h-4 text-neutral-400" />
                   <span>Campus Location Map</span>
                 </span>
-                <span className="text-neutral-400 text-[11px]">Pawta, Jaipur</span>
+                <span className="text-neutral-400 text-[11px]">Paota, Jaipur</span>
               </div>
               <div className="w-full h-64 bg-neutral-100 flex items-center justify-center relative">
                 <iframe

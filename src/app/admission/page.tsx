@@ -117,7 +117,7 @@ export default function AdmissionPage() {
           </h1>
         </div>
         <p className="mt-3 text-neutral-600 text-sm sm:text-base max-w-xl font-normal">
-          Shri Krishna Fire & Safety Academy (Pawta Jaipur) — Submit candidate details and upload documents (10th, 12th & Aadhar Card).
+          Shri Krishna Fire & Safety Academy (Paota Jaipur) — Submit candidate details and upload documents (10th, 12th & Aadhar Card).
         </p>
       </div>
 

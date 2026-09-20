@@ -1,6 +1,40 @@
 {
-  "leads": [],
-  "contacts": [],
+  "leads": [
+    {
+      "id": "lead-1789903443838-fo53k",
+      "fullName": "Test Candidate",
+      "fatherName": "Test Father",
+      "mobile": "9876543210",
+      "alternateMobile": "",
+      "email": "test.candidate@gmail.com",
+      "dob": "2000-01-01",
+      "gender": "Male",
+      "qualification": "12th Pass",
+      "address": "Near Main Market, Paota",
+      "state": "Rajasthan",
+      "city": "Jaipur",
+      "selectedCourse": "Fire Guard Complete Preparation Batch",
+      "hostelRequired": "Yes",
+      "marksheet10thUrl": "",
+      "marksheet12thUrl": "",
+      "aadharUrl": "",
+      "notes": "Test admission submission for admin verification",
+      "status": "New",
+      "createdAt": "2026-09-20T11:24:03.838Z"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "contact-1789903443860",
+      "name": "Test Enquiry User",
+      "phone": "9876543210",
+      "email": "test.enquiry@gmail.com",
+      "subject": "Batch Timing Query",
+      "message": "Hello, I want to know about next upcoming batch for fireman course.",
+      "createdAt": "2026-09-20T11:24:03.860Z",
+      "status": "New"
+    }
+  ],
   "courses": [
     {
       "id": "course-1",
@@ -539,15 +573,140 @@
   ],
   "gallery": [
     {
-      "id": "gal-1786603384217",
-      "title": "ghvhhg",
+      "id": "gal-1789904352776",
+      "title": "Himanshu",
       "category": "govt_selection",
       "section": "govt",
-      "imageUrl": "https://xadtzamtjxodldhipcpa.supabase.co/storage/v1/object/public/gallery-photos/photo_1786603373680_nnoxzc.png",
-      "description": "gvghg",
-      "candidateName": "bvvh",
-      "postOrCompany": "hghgvg",
-      "date": "123456"
+      "imageUrl": "/uploads/doc_1789904310026_a4y5tu.jpeg",
+      "description": "",
+      "candidateName": "Himanshu Yadav",
+      "postOrCompany": "Delhi Fire Service",
+      "date": "19/10/25"
+    },
+    {
+      "id": "gal-1",
+      "title": "Academy Main Campus & Cadet Squad Formation",
+      "category": "classroom",
+      "section": "training",
+      "imageUrl": "/images/campus-hero-banner.jpg",
+      "description": "Disciplined morning roll-call and cadet squad formation at the main Paota campus entrance with instructors and academy fire engine.",
+      "date": "August 2026"
+    },
+    {
+      "id": "gal-2",
+      "title": "Live Fire Extinguisher & Jet Spray Combat Drill",
+      "category": "drills",
+      "section": "training",
+      "imageUrl": "/images/fire-drill-action.jpg",
+      "description": "Cadets practicing rapid fire suppression using high-pressure branch pipes, water jet nozzles, and dry chemical powder extinguishers.",
+      "date": "July 2026"
+    },
+    {
+      "id": "gal-3",
+      "title": "60kg Human Dummy Carry & 400m Endurance Sprint",
+      "category": "ground",
+      "section": "training",
+      "imageUrl": "/images/dummy-carry-drill.jpg",
+      "description": "Physical trade test practice: 60kg deadweight dummy carry across the standard 400m athletic track under coach stopwatch evaluation.",
+      "date": "June 2026"
+    },
+    {
+      "id": "gal-4",
+      "title": "Fire Tender Centrifugal Pump & Valve Mechanics Drill",
+      "category": "drills",
+      "section": "training",
+      "imageUrl": "/images/fire-truck-pump.jpg",
+      "description": "Hands-on practical training on operational fire tender centrifugal pump operations, suction/delivery valves, and hose couplings.",
+      "date": "May 2026"
+    },
+    {
+      "id": "gal-5",
+      "title": "Government Selection - Joginder (DCPO)",
+      "category": "govt_selection",
+      "section": "govt",
+      "imageUrl": "/images/candidate-joginder.jpg",
+      "candidateName": "Joginder",
+      "postOrCompany": "Driver Cum Pump Operator (DCPO)",
+      "description": "Selected in Government Fire Service after qualifying HMV vehicle driving trade test and pump mechanics exam.",
+      "date": "Batch 2021"
+    },
+    {
+      "id": "gal-6",
+      "title": "Rajasthan Fire Service - Amit Kumar Swami",
+      "category": "govt_selection",
+      "section": "govt",
+      "imageUrl": "/images/candidate-amit.jpg",
+      "candidateName": "Amit Kumar Swami",
+      "postOrCompany": "Rajasthan State Fire Service",
+      "description": "Selected as Fireman in Rajasthan Local Self Government Fire Service Department.",
+      "date": "Batch 2021"
+    },
+    {
+      "id": "gal-7",
+      "title": "Delhi Fire Service (DFS) - Ramesh Puri",
+      "category": "govt_selection",
+      "section": "govt",
+      "imageUrl": "/images/candidate-ramesh.jpg",
+      "candidateName": "Ramesh Puri",
+      "postOrCompany": "Delhi Fire Service (DFS)",
+      "description": "Selected as Fire Officer in Delhi Fire Service following DSSSB competitive examination.",
+      "date": "Batch 2020"
+    },
+    {
+      "id": "gal-8",
+      "title": "Delhi Fire Service - Vupin Kumar",
+      "category": "govt_selection",
+      "section": "govt",
+      "imageUrl": "/images/candidate-vupin.jpg",
+      "candidateName": "Vupin Kumar",
+      "postOrCompany": "Delhi Fire Service",
+      "description": "Cleared written and physical 1600m ground test for Fireman post in Delhi Fire Service.",
+      "date": "Batch 2021"
+    },
+    {
+      "id": "gal-9",
+      "title": "Industrial Safety Officer - Ankit Kumawat",
+      "category": "private_selection",
+      "section": "private",
+      "imageUrl": "/images/candidate-ankit.jpg",
+      "candidateName": "Ankit Kumawat",
+      "postOrCompany": "Mumbai Industrial Complex (MH)",
+      "description": "Placed as Safety Officer in manufacturing plant after completing NCVT Industrial Safety Diploma.",
+      "date": "Batch 2022"
+    },
+    {
+      "id": "gal-10",
+      "title": "Smart Classroom & Fire Science Theory Session",
+      "category": "classroom",
+      "section": "training",
+      "imageUrl": "/images/training-thumb-1.jpg",
+      "description": "Interactive audio-visual lecture on Fire Hydraulics, Building Safety Codes, and Hazard Management.",
+      "date": "April 2026"
+    },
+    {
+      "id": "gal-11",
+      "title": "Casualty Stretcher & First Aid Emergency Rescue Drill",
+      "category": "drills",
+      "section": "training",
+      "imageUrl": "/images/training-thumb-4.jpg",
+      "description": "Emergency disaster response: rapid stretcher handling, patient stabilization, and first-aid evacuation.",
+      "date": "March 2026"
+    },
+    {
+      "id": "gal-12",
+      "title": "Live Foam Fire Suppression Demonstration",
+      "category": "drills",
+      "section": "training",
+      "imageUrl": "/images/training-thumb-5.jpg",
+      "description": "Class-B flammable liquid fire combat training using mechanical foam branch pipes.",
+      "date": "February 2026"
     }
-  ]
+  ],
+  "settings": {
+    "tourVideoUrl": "https://www.youtube.com/watch?v=kYJzX2N8E8s",
+    "tourVideoThumbnail": "/images/director-campus-tour.jpg",
+    "tourVideoTitle": "Watch Live Campus Tour - Shri Krishna Fire & Safety Academy",
+    "tourVideoHeading": "WATCH LIVE CAMPUS TOUR",
+    "tourVideoHelpline": "+91 96805 05554"
+  }
 }

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { Course, AdmissionLead, ContactEnquiry, RecruitmentNotice, BlogPost, GalleryItem } from '@/types';
-import { INITIAL_COURSES, INITIAL_RECRUITMENTS, INITIAL_BLOGS, INITIAL_GALLERY } from './initialData';
+import { Course, AdmissionLead, ContactEnquiry, RecruitmentNotice, BlogPost, GalleryItem, SiteSettings } from '@/types';
+import { INITIAL_COURSES, INITIAL_RECRUITMENTS, INITIAL_BLOGS, INITIAL_GALLERY, INITIAL_SETTINGS } from './initialData';
 import { isSupabaseConfigured, supabase, mapRowToGalleryItem, mapGalleryItemToRow } from '@/lib/supabase';
 
 const DATA_DIR = path.join(process.cwd(), '.data');
@@ -14,6 +14,7 @@ interface DatabaseSchema {
   recruitments: RecruitmentNotice[];
   blogs: BlogPost[];
   gallery: GalleryItem[];
+  settings?: SiteSettings;
 }
 
 function ensureDb(): DatabaseSchema {
@@ -78,7 +79,8 @@ function ensureDb(): DatabaseSchema {
         courses: INITIAL_COURSES,
         recruitments: INITIAL_RECRUITMENTS,
         blogs: INITIAL_BLOGS,
-        gallery: INITIAL_GALLERY
+        gallery: INITIAL_GALLERY,
+        settings: INITIAL_SETTINGS
       };
       fs.writeFileSync(DB_FILE, JSON.stringify(initialDb, null, 2), 'utf-8');
       return initialDb;
@@ -92,7 +94,8 @@ function ensureDb(): DatabaseSchema {
       courses: parsed.courses?.length ? parsed.courses : INITIAL_COURSES,
       recruitments: parsed.recruitments?.length ? parsed.recruitments : INITIAL_RECRUITMENTS,
       blogs: parsed.blogs?.length ? parsed.blogs : INITIAL_BLOGS,
-      gallery: parsed.gallery?.length ? parsed.gallery : INITIAL_GALLERY
+      gallery: parsed.gallery?.length ? parsed.gallery : INITIAL_GALLERY,
+      settings: parsed.settings || INITIAL_SETTINGS
     };
   } catch (error) {
     console.error('Failed to read or initialize DB file, falling back to memory/defaults:', error);
@@ -280,6 +283,7 @@ export function getGallery(): GalleryItem[] {
 }
 
 export async function getGalleryItemsAsync(): Promise<GalleryItem[]> {
+  const localItems = getGallery();
   if (isSupabaseConfigured() && supabase) {
     try {
       const { data, error } = await supabase
@@ -288,13 +292,16 @@ export async function getGalleryItemsAsync(): Promise<GalleryItem[]> {
         .order('created_at', { ascending: false });
       
       if (!error && data && data.length > 0) {
-        return data.map(mapRowToGalleryItem);
+        const supabaseItems = data.map(mapRowToGalleryItem);
+        const supabaseIds = new Set(supabaseItems.map(item => item.id));
+        const remainingInitial = localItems.filter(item => !supabaseIds.has(item.id));
+        return [...supabaseItems, ...remainingInitial];
       }
     } catch (err) {
       console.warn('Supabase fetch error, using local database fallback:', err);
     }
   }
-  return getGallery();
+  return localItems;
 }
 
 export function addGalleryItem(item: GalleryItem): GalleryItem {
@@ -388,4 +395,22 @@ export async function deleteGalleryItemAsync(id: string): Promise<boolean> {
   }
 
   return success;
+}
+
+// Site & Video Settings
+export function getSettings(): SiteSettings {
+  const db = ensureDb();
+  return db.settings || INITIAL_SETTINGS;
+}
+
+export function updateSettings(newSettings: Partial<SiteSettings>): SiteSettings {
+  const db = ensureDb();
+  const current = db.settings || INITIAL_SETTINGS;
+  const updated: SiteSettings = {
+    ...current,
+    ...newSettings
+  };
+  db.settings = updated;
+  saveDb(db);
+  return updated;
 }

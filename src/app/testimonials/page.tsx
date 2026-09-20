@@ -43,7 +43,7 @@ export default function TestimonialsPage() {
           </h1>
         </div>
         <p className="mt-3 text-neutral-600 text-sm sm:text-base max-w-xl font-normal">
-          Genuine feedback and candidate selection stories from Shri Krishna Fire & Safety Academy (Pawta, Jaipur).
+          Genuine feedback and candidate selection stories from Shri Krishna Fire & Safety Academy (Paota, Jaipur).
         </p>
       </div>
 

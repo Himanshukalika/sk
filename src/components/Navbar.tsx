@@ -23,13 +23,13 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="bg-white/95 backdrop-blur-md border-b border-neutral-200/80 sticky top-0 z-50 transition-all">
+    <header className="bg-neutral-950/95 backdrop-blur-md border-b border-neutral-800/90 sticky top-0 z-50 transition-all text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between h-20">
 
           {/* Brand Logo */}
           <Link href="/" className="shrink-0 flex items-center">
-            <AcademyLogo size="medium" />
+            <AcademyLogo size="medium" variant="dark" />
           </Link>
 
           {/* Desktop Nav Links */}
@@ -42,13 +42,13 @@ export default function Navbar() {
                   href={link.href}
                   className={`text-xs font-semibold tracking-wider transition-colors duration-150 relative py-1 ${
                     isActive
-                      ? 'text-neutral-900 font-bold'
-                      : 'text-neutral-600 hover:text-neutral-900'
+                      ? 'text-white font-bold'
+                      : 'text-neutral-400 hover:text-white'
                   }`}
                 >
                   {link.name}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-neutral-900 rounded-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-red-600 rounded-full" />
                   )}
                 </Link>
               );
@@ -59,7 +59,7 @@ export default function Navbar() {
           <div className="hidden sm:flex items-center gap-3 shrink-0">
             <Link
               href="/admission"
-              className="bg-neutral-900 hover:bg-neutral-800 text-white px-5 py-2.5 rounded-xl text-xs font-medium transition-all shadow-xs"
+              className="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-lg shadow-red-600/25"
             >
               Book Admission
             </Link>
@@ -69,7 +69,7 @@ export default function Navbar() {
           <div className="flex md:hidden items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2.5 rounded-xl text-neutral-900 hover:bg-neutral-100 transition-colors"
+              className="p-2.5 rounded-xl text-neutral-300 hover:text-white hover:bg-neutral-900 transition-colors"
               aria-label="Toggle menu"
             >
               {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -80,7 +80,7 @@ export default function Navbar() {
 
       {/* Mobile Dropdown Drawer */}
       {isOpen && (
-        <div className="md:hidden bg-white border-b border-neutral-200/80 px-5 pt-3 pb-6 space-y-2 shadow-xl animate-in fade-in slide-in-from-top-2">
+        <div className="md:hidden bg-neutral-950 border-b border-neutral-800 px-5 pt-3 pb-6 space-y-2 shadow-2xl animate-in fade-in slide-in-from-top-2">
           {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
@@ -89,7 +89,7 @@ export default function Navbar() {
                 href={link.href}
                 onClick={() => setIsOpen(false)}
                 className={`block px-4 py-3 rounded-xl text-xs font-semibold tracking-wider transition-colors ${
-                  isActive ? 'bg-neutral-100 text-neutral-900 font-bold' : 'text-neutral-700 hover:bg-neutral-50'
+                  isActive ? 'bg-neutral-900 text-white font-bold' : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
                 }`}
               >
                 {link.name}
@@ -102,7 +102,7 @@ export default function Navbar() {
             <Link
               href="/admission"
               onClick={() => setIsOpen(false)}
-              className="block w-full text-center bg-neutral-900 hover:bg-neutral-800 text-white px-4 py-3.5 rounded-xl text-xs font-semibold uppercase tracking-wider shadow-xs transition-colors"
+              className="block w-full text-center bg-red-600 hover:bg-red-700 text-white px-4 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider shadow-lg shadow-red-600/25 transition-colors"
             >
               Book Online Admission
             </Link>

@@ -24,7 +24,7 @@ export default function Footer() {
               Ready to Join Shri Krishna Fire Academy?
             </h3>
             <p className="text-neutral-400 text-xs sm:text-sm mt-1.5 max-w-xl font-normal">
-              Enroll for Written Theory + 400m Physical Ground + Heavy Driving Trade Test Coaching (Pawta, Jaipur).
+              Enroll for Written Theory + 400m Physical Ground + Heavy Driving Trade Test Coaching (Paota, Jaipur).
             </p>
           </div>
 
@@ -57,7 +57,7 @@ export default function Footer() {
             <AcademyLogo size="medium" variant="dark" />
             
             <p className="text-xs text-neutral-400 leading-relaxed pt-2">
-              <strong>Shri Krishna Fire and Safety Academy</strong> (Pawta, Jaipur) is Rajasthan&apos;s premier institute for Fireman, Fire Driver, Sub Fire Officer, and NCVT approved safety courses.
+              <strong>Shri Krishna Fire and Safety Academy</strong> (Paota, Jaipur) is Rajasthan&apos;s premier institute for Fireman, Fire Driver, Sub Fire Officer, and NCVT approved safety courses.
             </p>
 
             <div className="pt-2 text-xs text-neutral-400 space-y-0.5 border-t border-neutral-900">
@@ -123,14 +123,14 @@ export default function Footer() {
           {/* Col 4: Campus Address & Contact */}
           <div className="space-y-4">
             <h4 className="text-xs font-semibold uppercase tracking-[0.15em] text-neutral-200 border-b border-neutral-800/80 pb-3">
-              Pawta Jaipur Campus
+              Paota Jaipur Campus
             </h4>
             
             <div className="space-y-3.5 text-xs text-neutral-400">
               <div className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-neutral-500 shrink-0 mt-0.5" />
                 <span className="leading-relaxed">
-                  Ram Vihar Colony, Near S.H.M. College, Pawta, Jaipur, Rajasthan (303106)
+                  Ram Vihar Colony, Near S.H.M. College, Paota, Jaipur, Rajasthan (303106)
                 </span>
               </div>
 
@@ -161,7 +161,7 @@ export default function Footer() {
       {/* Bottom Copyright Bar */}
       <div className="bg-neutral-900/90 border-t border-neutral-800/60 py-5 text-center text-xs text-neutral-500">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© 2026 Shri Krishna Fire and Safety Academy (Pawta, Jaipur). All Rights Reserved.</p>
+          <p>© 2026 Shri Krishna Fire and Safety Academy (Paota, Jaipur). All Rights Reserved.</p>
           <div className="flex items-center gap-4 text-neutral-400 text-[11px]">
             <Link href="/admin" className="hover:text-white transition-colors">Admin Login</Link>
             <span>•</span>
