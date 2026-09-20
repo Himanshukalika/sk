@@ -4,6 +4,8 @@ import TopNotificationBar from "@/components/TopNotificationBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
+import { LanguageProvider } from "@/context/LanguageContext";
+import InitialWelcomeModal from "@/components/InitialWelcomeModal";
 
 export const metadata: Metadata = {
   title: "Shri Krishna Fire & Safety Academy (Paota, Jaipur) | Premier Fireman & Safety Training Institute",
@@ -37,13 +39,16 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full scroll-smooth">
       <body className="min-h-full flex flex-col bg-slate-50 text-neutral-900 selection:bg-red-600 selection:text-white">
-        <TopNotificationBar />
-        <Navbar />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <FloatingActions />
+        <LanguageProvider>
+          <InitialWelcomeModal />
+          <TopNotificationBar />
+          <Navbar />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <FloatingActions />
+        </LanguageProvider>
       </body>
     </html>
   );

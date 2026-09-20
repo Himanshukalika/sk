@@ -3,9 +3,11 @@
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { Phone, Mail, Globe, MessageCircle, Video } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function TopNotificationBar() {
   const pathname = usePathname();
+  const { t } = useLanguage();
 
   if (pathname?.startsWith('/admin')) {
     return null;
@@ -18,12 +20,12 @@ export default function TopNotificationBar() {
         <div className="flex items-center gap-4 text-[11px] sm:text-xs">
           <a href="tel:+919680505554" className="flex items-center gap-1.5 hover:text-red-100 transition-colors">
             <Phone className="w-3.5 h-3.5 fill-current" />
-            <span>Call Us 24/7: +91 9680505554 | 8696715101</span>
+            <span>{t('top.callUs', 'Call Us 24/7: +91 9680505554 | 8696715101')}</span>
           </a>
           <span className="hidden md:inline text-red-300">|</span>
-          <a href="mailto:info@skfiresafety.com" className="hidden md:flex items-center gap-1.5 hover:text-red-100 transition-colors">
+          <a href="mailto:info@skfiresafety.in" className="hidden md:flex items-center gap-1.5 hover:text-red-100 transition-colors">
             <Mail className="w-3.5 h-3.5" />
-            <span>info@skfiresafety.com</span>
+            <span>info@skfiresafety.in</span>
           </a>
         </div>
 
@@ -31,15 +33,15 @@ export default function TopNotificationBar() {
         <div className="flex items-center gap-4 text-white/90 text-[11px]">
           <a href="https://wa.me/919680505554" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-white transition-colors">
             <MessageCircle className="w-3.5 h-3.5 text-green-300" />
-            <span>WhatsApp</span>
+            <span>{t('top.whatsapp', 'WhatsApp')}</span>
           </a>
           <a href="https://youtube.com" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-white transition-colors">
             <Video className="w-3.5 h-3.5" />
             <span>YouTube</span>
           </a>
-          <a href="https://skfiresafety.com" target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:text-white transition-colors">
+          <a href="/admission" className="flex items-center gap-1 hover:text-white transition-colors">
             <Globe className="w-3.5 h-3.5" />
-            <span>Portal</span>
+            <span>{t('top.portal', 'Online Portal')}</span>
           </a>
         </div>
       </div>
