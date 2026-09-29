@@ -257,7 +257,7 @@ const translations: Record<Language, Record<string, string>> = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguageState] = useState<Language>('en');
+  const [language, setLanguageState] = useState<Language>('hi');
   const [isInitialModalOpen, setIsInitialModalOpen] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
 
@@ -265,15 +265,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setMounted(true);
     // Check if user has previously set language preference
     const saved = localStorage.getItem('sk_preferred_language') as Language | null;
-    const hasSeenModal = localStorage.getItem('sk_welcomed_v1');
 
     if (saved === 'hi' || saved === 'en') {
       setLanguageState(saved);
-    }
-
-    // If first visit, show the initial welcome and language selection popup
-    if (!hasSeenModal) {
-      setIsInitialModalOpen(true);
+    } else {
+      setLanguageState('hi');
     }
   }, []);
 
@@ -281,7 +277,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLanguageState(lang);
     if (typeof window !== 'undefined') {
       localStorage.setItem('sk_preferred_language', lang);
-      localStorage.setItem('sk_welcomed_v1', 'true');
     }
   };
 

@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingActions from "@/components/FloatingActions";
 import { LanguageProvider } from "@/context/LanguageContext";
-import InitialWelcomeModal from "@/components/InitialWelcomeModal";
+import StudentRegistrationModal from "@/components/StudentRegistrationModal";
 
 export const metadata: Metadata = {
   title: "Shri Krishna Fire & Safety Academy (Paota, Jaipur) | Premier Fireman & Safety Training Institute",
@@ -37,10 +37,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full scroll-smooth">
+    <html lang="hi" className="h-full scroll-smooth">
       <body className="min-h-full flex flex-col bg-slate-50 text-neutral-900 selection:bg-red-600 selection:text-white">
         <LanguageProvider>
-          <InitialWelcomeModal />
+          <StudentRegistrationModal />
           <TopNotificationBar />
           <Navbar />
           <main className="flex-1">
