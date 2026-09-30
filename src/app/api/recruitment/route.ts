@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getRecruitments, saveRecruitment } from '@/data/storage';
+import { getRecruitments, saveRecruitment, deleteRecruitment } from '@/data/storage';
 import { RecruitmentNotice } from '@/types';
 
 export async function GET() {
@@ -30,3 +30,50 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, error: 'Failed to save recruitment' }, { status: 500 });
   }
 }
+
+export async function PATCH(request: Request) {
+  try {
+    const body: Partial<RecruitmentNotice> & { id: string } = await request.json();
+    if (!body.id) {
+      return NextResponse.json({ success: false, error: 'Recruitment ID is required' }, { status: 400 });
+    }
+
+    const all = getRecruitments();
+    const existing = all.find(r => r.id === body.id);
+    if (!existing) {
+      return NextResponse.json({ success: false, error: 'Recruitment notice not found' }, { status: 404 });
+    }
+
+    const updated = saveRecruitment({
+      ...existing,
+      ...body
+    });
+
+    return NextResponse.json({ success: true, message: 'Recruitment updated successfully', data: updated });
+  } catch (error) {
+    console.error('Error updating recruitment:', error);
+    return NextResponse.json({ success: false, error: 'Failed to update recruitment' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Recruitment ID is required' }, { status: 400 });
+    }
+
+    const deleted = deleteRecruitment(id);
+    if (!deleted) {
+      return NextResponse.json({ success: false, error: 'Recruitment notice not found or could not be deleted' }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, message: 'Recruitment notice deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting recruitment:', error);
+    return NextResponse.json({ success: false, error: 'Failed to delete recruitment' }, { status: 500 });
+  }
+}
+

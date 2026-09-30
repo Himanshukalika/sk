@@ -229,10 +229,21 @@ export function saveCourse(course: Course): Course {
   if (index >= 0) {
     db.courses[index] = course;
   } else {
-    db.courses.push(course);
+    db.courses.unshift(course);
   }
   saveDb(db);
   return course;
+}
+
+export function deleteCourse(id: string): boolean {
+  const db = ensureDb();
+  const initialLength = db.courses.length;
+  db.courses = db.courses.filter(c => c.id !== id && c.slug !== id);
+  if (db.courses.length !== initialLength) {
+    saveDb(db);
+    return true;
+  }
+  return false;
 }
 
 // Recruitments
@@ -247,10 +258,21 @@ export function saveRecruitment(notice: RecruitmentNotice): RecruitmentNotice {
   if (index >= 0) {
     db.recruitments[index] = notice;
   } else {
-    db.recruitments.push(notice);
+    db.recruitments.unshift(notice);
   }
   saveDb(db);
   return notice;
+}
+
+export function deleteRecruitment(id: string): boolean {
+  const db = ensureDb();
+  const initialLength = db.recruitments.length;
+  db.recruitments = db.recruitments.filter(r => r.id !== id);
+  if (db.recruitments.length !== initialLength) {
+    saveDb(db);
+    return true;
+  }
+  return false;
 }
 
 // Blogs
@@ -270,10 +292,21 @@ export function saveBlog(blog: BlogPost): BlogPost {
   if (index >= 0) {
     db.blogs[index] = blog;
   } else {
-    db.blogs.push(blog);
+    db.blogs.unshift(blog);
   }
   saveDb(db);
   return blog;
+}
+
+export function deleteBlog(id: string): boolean {
+  const db = ensureDb();
+  const initialLength = db.blogs.length;
+  db.blogs = db.blogs.filter(b => b.id !== id && b.slug !== id);
+  if (db.blogs.length !== initialLength) {
+    saveDb(db);
+    return true;
+  }
+  return false;
 }
 
 // Gallery

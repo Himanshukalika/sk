@@ -47,6 +47,71 @@ import AcademyLogo from '@/components/AcademyLogo';
 const ADMIN_EMAIL = 'info@skfiresafety.in';
 const ADMIN_PASSWORD = 'SKFire@2024';
 
+const initialCourseForm: Course = {
+  id: '',
+  slug: '',
+  title: '',
+  hindiTitle: '',
+  category: 'fireman',
+  badge: 'Popular',
+  duration: '6 Months',
+  eligibility: '10th / 12th Pass',
+  batchTiming: '08:00 AM - 12:00 PM',
+  mode: 'Offline + Ground',
+  fees: '₹18,500',
+  shortDescription: '',
+  description: '',
+  keyFeatures: [
+    'Daily Physical Training (400m Track + Obstacles)',
+    'Live Hose & Hydrant Practical Drills',
+    'Breathing Apparatus (BA) Set Training',
+    'Govt. & Private Placement Support'
+  ],
+  syllabus: [
+    { title: 'Module 1: Fire Science & Prevention', topics: ['Chemistry of Combustion', 'Classification of Fire', 'Fire Prevention Measures'] },
+    { title: 'Module 2: Practical Fire Fighting Equipment', topics: ['Fire Hoses & Branch Pipes', 'Pumps & Primers Drill', 'Breathing Apparatus Operation'] }
+  ],
+  upcomingBatchDate: '1st & 15th of Every Month',
+  totalSeats: 60,
+  availableSeats: 15
+};
+
+const initialRecruitmentForm: RecruitmentNotice = {
+  id: '',
+  title: '',
+  department: '',
+  state: 'All India',
+  totalPosts: 100,
+  eligibility: '10th / 12th Pass with Fire Safety Certificate',
+  ageLimit: '18 - 28 Years',
+  salary: 'Pay Level 3 (₹21,700 - ₹69,100)',
+  applicationStartDate: new Date().toISOString().split('T')[0],
+  lastDate: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+  status: 'Active',
+  notificationUrl: '',
+  applyUrl: '',
+  brief: '',
+  keyDates: [
+    { event: 'Application Start Date', date: new Date().toISOString().split('T')[0] },
+    { event: 'Last Date for Online Submission', date: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0] }
+  ]
+};
+
+const initialBlogForm: BlogPost = {
+  id: '',
+  slug: '',
+  title: '',
+  hindiTitle: '',
+  excerpt: '',
+  content: '',
+  category: 'Guide',
+  author: 'Chief Fire Training Officer',
+  publishedAt: new Date().toISOString().split('T')[0],
+  readTime: '5 min read',
+  tags: ['Fireman', 'Recruitment', 'Exam Preparation', 'Physical Test'],
+  featured: false
+};
+
 export default function AdminDashboardPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
@@ -72,10 +137,32 @@ export default function AdminDashboardPage() {
   const [contacts, setContacts] = useState<ContactEnquiry[]>([]);
   const [loadingContacts, setLoadingContacts] = useState(false);
 
-  // Content states
+  // Courses state & modals
   const [courses, setCourses] = useState<Course[]>(INITIAL_COURSES);
+  const [courseSearch, setCourseSearch] = useState('');
+  const [courseCategoryFilter, setCourseCategoryFilter] = useState('all');
+  const [isAddingCourse, setIsAddingCourse] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [courseForm, setCourseForm] = useState<Course>(initialCourseForm);
+  const [isSavingCourse, setIsSavingCourse] = useState(false);
+
+  // Recruitment state & modals
   const [recruitments, setRecruitments] = useState<RecruitmentNotice[]>(INITIAL_RECRUITMENTS);
+  const [recruitmentSearch, setRecruitmentSearch] = useState('');
+  const [recruitmentStateFilter, setRecruitmentStateFilter] = useState('all');
+  const [isAddingRecruitment, setIsAddingRecruitment] = useState(false);
+  const [editingRecruitment, setEditingRecruitment] = useState<RecruitmentNotice | null>(null);
+  const [recruitmentForm, setRecruitmentForm] = useState<RecruitmentNotice>(initialRecruitmentForm);
+  const [isSavingRecruitment, setIsSavingRecruitment] = useState(false);
+
+  // Blogs state & modals
   const [blogs, setBlogs] = useState<BlogPost[]>(INITIAL_BLOGS);
+  const [blogSearch, setBlogSearch] = useState('');
+  const [blogCategoryFilter, setBlogCategoryFilter] = useState('all');
+  const [isAddingBlog, setIsAddingBlog] = useState(false);
+  const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
+  const [blogForm, setBlogForm] = useState<BlogPost>(initialBlogForm);
+  const [isSavingBlog, setIsSavingBlog] = useState(false);
 
   // Gallery state
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(INITIAL_GALLERY);
@@ -263,6 +350,194 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const fetchCourses = async () => {
+    try {
+      const res = await fetch('/api/courses');
+      const data = await res.json();
+      if (data.success && data.data) {
+        setCourses(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch courses:', err);
+    }
+  };
+
+  const handleSaveCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingCourse(true);
+    try {
+      const isEdit = !!editingCourse;
+      const targetData = isEdit ? editingCourse : courseForm;
+      if (!targetData.title) {
+        alert('Course Title is required');
+        setIsSavingCourse(false);
+        return;
+      }
+      const res = await fetch('/api/courses', {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(targetData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(isEdit ? 'Course updated successfully!' : 'Course added successfully!');
+        setIsAddingCourse(false);
+        setEditingCourse(null);
+        setCourseForm(initialCourseForm);
+        fetchCourses();
+      } else {
+        alert(data.error || 'Failed to save course');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save course');
+    } finally {
+      setIsSavingCourse(false);
+    }
+  };
+
+  const handleDeleteCourse = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this course? This action cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/courses?id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setCourses(prev => prev.filter(c => c.id !== id && c.slug !== id));
+      } else {
+        alert(data.error || 'Failed to delete course');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete course');
+    }
+  };
+
+  // Recruitment Handlers
+  const fetchRecruitments = async () => {
+    try {
+      const res = await fetch('/api/recruitment');
+      const data = await res.json();
+      if (data.success && data.data) {
+        setRecruitments(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch recruitments:', err);
+    }
+  };
+
+  const handleSaveRecruitment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingRecruitment(true);
+    try {
+      const isEdit = !!editingRecruitment;
+      const targetData = isEdit ? editingRecruitment : recruitmentForm;
+      if (!targetData.title || !targetData.department) {
+        alert('Notice Title and Department are required');
+        setIsSavingRecruitment(false);
+        return;
+      }
+      const res = await fetch('/api/recruitment', {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(targetData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(isEdit ? 'Recruitment notice updated successfully!' : 'Recruitment notice added successfully!');
+        setIsAddingRecruitment(false);
+        setEditingRecruitment(null);
+        setRecruitmentForm(initialRecruitmentForm);
+        fetchRecruitments();
+      } else {
+        alert(data.error || 'Failed to save recruitment notice');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save recruitment notice');
+    } finally {
+      setIsSavingRecruitment(false);
+    }
+  };
+
+  const handleDeleteRecruitment = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this recruitment notice? This action cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/recruitment?id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setRecruitments(prev => prev.filter(r => r.id !== id));
+      } else {
+        alert(data.error || 'Failed to delete recruitment notice');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete recruitment notice');
+    }
+  };
+
+  // Blog Handlers
+  const fetchBlogs = async () => {
+    try {
+      const res = await fetch('/api/blogs');
+      const data = await res.json();
+      if (data.success && data.data) {
+        setBlogs(data.data);
+      }
+    } catch (err) {
+      console.error('Failed to fetch blogs:', err);
+    }
+  };
+
+  const handleSaveBlog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingBlog(true);
+    try {
+      const isEdit = !!editingBlog;
+      const targetData = isEdit ? editingBlog : blogForm;
+      if (!targetData.title || !targetData.content) {
+        alert('Title and Content are required');
+        setIsSavingBlog(false);
+        return;
+      }
+      const res = await fetch('/api/blogs', {
+        method: isEdit ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(targetData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(isEdit ? 'Blog post updated successfully!' : 'Blog post published successfully!');
+        setIsAddingBlog(false);
+        setEditingBlog(null);
+        setBlogForm(initialBlogForm);
+        fetchBlogs();
+      } else {
+        alert(data.error || 'Failed to save blog post');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save blog post');
+    } finally {
+      setIsSavingBlog(false);
+    }
+  };
+
+  const handleDeleteBlog = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this blog post? This action cannot be undone.')) return;
+    try {
+      const res = await fetch(`/api/blogs?id=${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setBlogs(prev => prev.filter(b => b.id !== id && b.slug !== id));
+      } else {
+        alert(data.error || 'Failed to delete blog post');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete blog post');
+    }
+  };
+
   // Video Settings Handlers
   const fetchSettings = async () => {
     try {
@@ -337,23 +612,32 @@ export default function AdminDashboardPage() {
     let isMounted = true;
     async function loadInitial() {
       try {
-        const [lRes, cRes, gRes, sRes] = await Promise.all([
+        const [lRes, cRes, gRes, sRes, crRes, recRes, bRes] = await Promise.all([
           fetch('/api/admission'),
           fetch('/api/contact'),
           fetch('/api/gallery'),
-          fetch('/api/settings')
+          fetch('/api/settings'),
+          fetch('/api/courses'),
+          fetch('/api/recruitment'),
+          fetch('/api/blogs')
         ]);
-        const [lData, cData, gData, sData] = await Promise.all([
+        const [lData, cData, gData, sData, crData, recData, bData] = await Promise.all([
           lRes.json(),
           cRes.json(),
           gRes.json(),
-          sRes.json()
+          sRes.json(),
+          crRes.json(),
+          recRes.json(),
+          bRes.json()
         ]);
         if (isMounted) {
           if (lData.success) setLeads(lData.data);
           if (cData.success) setContacts(cData.data);
           if (gData.success && gData.data) setGalleryItems(gData.data);
           if (sData.success && sData.data) setSettings(sData.data);
+          if (crData.success && crData.data) setCourses(crData.data);
+          if (recData.success && recData.data) setRecruitments(recData.data);
+          if (bData.success && bData.data) setBlogs(bData.data);
         }
       } catch (e) {
         console.error('Error fetching initial dashboard data:', e);
@@ -992,76 +1276,401 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* TAB 3: COURSES OVERVIEW */}
+        {/* TAB 3: COURSES OVERVIEW & MANAGEMENT */}
         {activeTab === 'courses' && (
-          <div className="mt-6 space-y-4">
+          <div className="mt-6 space-y-6">
+            {/* Header & Controls */}
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <div className="relative w-full sm:w-72">
+                  <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={courseSearch}
+                    onChange={(e) => setCourseSearch(e.target.value)}
+                    placeholder="Search course title, category or eligibility..."
+                    className="w-full pl-9 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900 focus:ring-2 focus:ring-red-600 focus:outline-none"
+                  />
+                </div>
+
+                <select
+                  value={courseCategoryFilter}
+                  onChange={(e) => setCourseCategoryFilter(e.target.value)}
+                  className="w-full sm:w-48 px-3 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-800 focus:ring-2 focus:ring-red-600 focus:outline-none"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="fireman">Fireman (6 Months)</option>
+                  <option value="fire-guard">Fire Guard</option>
+                  <option value="operator">Pump Operator</option>
+                  <option value="diploma">Safety Diploma</option>
+                  <option value="physical">Physical Ground Training</option>
+                  <option value="special">Specialized Rescue</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <button
+                  onClick={fetchCourses}
+                  className="p-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl transition-colors"
+                  title="Reload courses"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    setCourseForm(initialCourseForm);
+                    setIsAddingCourse(true);
+                  }}
+                  className="flex-1 md:flex-none px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add New Course</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Courses Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses.map((course) => (
-                <div key={course.id} className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">
-                      {course.category}
-                    </span>
-                    <span className="text-xs font-bold text-neutral-700">{course.fees}</span>
+              {courses
+                .filter((c) => {
+                  const matchCat = courseCategoryFilter === 'all' || c.category === courseCategoryFilter;
+                  const matchSearch =
+                    (c.title || '').toLowerCase().includes(courseSearch.toLowerCase()) ||
+                    (c.hindiTitle || '').toLowerCase().includes(courseSearch.toLowerCase()) ||
+                    (c.eligibility || '').toLowerCase().includes(courseSearch.toLowerCase()) ||
+                    (c.shortDescription || '').toLowerCase().includes(courseSearch.toLowerCase());
+                  return matchCat && matchSearch;
+                })
+                .map((course) => (
+                  <div key={course.id || course.slug} className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-3 flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-black text-red-600 bg-red-50 border border-red-200/60 px-2.5 py-0.5 rounded-lg uppercase tracking-wider">
+                          {course.category}
+                        </span>
+                        <span className="text-xs font-black text-neutral-900 bg-neutral-100 px-2.5 py-0.5 rounded-lg">{course.fees || 'Contact for Fees'}</span>
+                      </div>
+                      
+                      <div>
+                        <h4 className="font-black text-base text-neutral-900 leading-snug">{course.title}</h4>
+                        {course.hindiTitle && (
+                          <p className="text-xs font-bold text-amber-700 mt-0.5">{course.hindiTitle}</p>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2 text-[11px] bg-neutral-50 p-2.5 rounded-xl border border-neutral-100 font-medium text-neutral-600">
+                        <div>
+                          <span className="text-[10px] text-neutral-400 block font-bold">Duration</span>
+                          <span className="font-bold text-neutral-800">{course.duration}</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-neutral-400 block font-bold">Training Mode</span>
+                          <span className="font-bold text-neutral-800">{course.mode}</span>
+                        </div>
+                        <div className="col-span-2">
+                          <span className="text-[10px] text-neutral-400 block font-bold">Eligibility</span>
+                          <span className="font-bold text-neutral-800">{course.eligibility}</span>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-neutral-600 line-clamp-2 leading-relaxed">{course.shortDescription}</p>
+                      
+                      <div className="flex items-center justify-between text-[11px] font-bold text-neutral-500 pt-1">
+                        <span>Seats Available:</span>
+                        <span className="text-emerald-700 font-extrabold">{course.availableSeats} / {course.totalSeats}</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-neutral-100 flex items-center justify-between">
+                      <Link href={`/courses/${course.slug}`} target="_blank" className="text-xs text-red-600 font-black hover:underline flex items-center gap-1">
+                        <span>View Live Page</span>
+                        <Eye className="w-3.5 h-3.5" />
+                      </Link>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setEditingCourse(course)}
+                          className="p-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                          title="Edit Course Details"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline text-[11px]">Edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCourse(course.id || course.slug)}
+                          className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                          title="Delete Course"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <h4 className="font-extrabold text-base text-neutral-900">{course.title}</h4>
-                  <p className="text-xs text-neutral-500 line-clamp-2">{course.shortDescription}</p>
-                  <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-600">
-                    <span>Seats: {course.availableSeats} of {course.totalSeats}</span>
-                    <Link href={`/courses/${course.slug}`} className="text-red-600 font-bold hover:underline">
-                      View Page
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         )}
 
-        {/* TAB 4: RECRUITMENTS OVERVIEW */}
+        {/* TAB 4: RECRUITMENTS OVERVIEW & MANAGEMENT */}
         {activeTab === 'recruitments' && (
-          <div className="mt-6 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {recruitments.map((rec) => (
-                <div key={rec.id} className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-neutral-700 bg-neutral-100 px-2.5 py-0.5 rounded">
-                      {rec.state}
-                    </span>
-                    <span className="text-xs font-extrabold text-green-700 bg-green-50 px-2 py-0.5 rounded">
-                      {rec.totalPosts} Posts
-                    </span>
-                  </div>
-                  <h4 className="font-extrabold text-base text-neutral-900">{rec.title}</h4>
-                  <div className="text-xs text-neutral-600 space-y-1">
-                    <p><strong>Eligibility:</strong> {rec.eligibility}</p>
-                    <p><strong>Last Date:</strong> {rec.lastDate}</p>
-                  </div>
+          <div className="mt-6 space-y-6">
+            {/* Header & Controls */}
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <div className="relative w-full sm:w-72">
+                  <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={recruitmentSearch}
+                    onChange={(e) => setRecruitmentSearch(e.target.value)}
+                    placeholder="Search department, state or post title..."
+                    className="w-full pl-9 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900 focus:ring-2 focus:ring-red-600 focus:outline-none"
+                  />
                 </div>
-              ))}
+
+                <select
+                  value={recruitmentStateFilter}
+                  onChange={(e) => setRecruitmentStateFilter(e.target.value)}
+                  className="w-full sm:w-48 px-3 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-800 focus:ring-2 focus:ring-red-600 focus:outline-none"
+                >
+                  <option value="all">All States & Central</option>
+                  <option value="All India">All India / Central</option>
+                  <option value="Delhi">Delhi (DFS)</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <button
+                  onClick={fetchRecruitments}
+                  className="p-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl transition-colors"
+                  title="Reload recruitment notices"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    setRecruitmentForm(initialRecruitmentForm);
+                    setIsAddingRecruitment(true);
+                  }}
+                  className="flex-1 md:flex-none px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Recruitment Notice</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Recruitment Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {recruitments
+                .filter((r) => {
+                  const matchState = recruitmentStateFilter === 'all' || r.state === recruitmentStateFilter || (r.state || '').includes(recruitmentStateFilter);
+                  const matchSearch =
+                    (r.title || '').toLowerCase().includes(recruitmentSearch.toLowerCase()) ||
+                    (r.department || '').toLowerCase().includes(recruitmentSearch.toLowerCase()) ||
+                    (r.eligibility || '').toLowerCase().includes(recruitmentSearch.toLowerCase()) ||
+                    (r.brief || '').toLowerCase().includes(recruitmentSearch.toLowerCase());
+                  return matchState && matchSearch;
+                })
+                .map((rec) => (
+                  <div key={rec.id} className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-4 flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-bold text-neutral-700 bg-neutral-100 px-2.5 py-1 rounded-lg">
+                          📍 {rec.state}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-black px-2.5 py-0.5 rounded-full ${
+                            rec.status === 'Active' ? 'bg-emerald-100 text-emerald-800' :
+                            rec.status === 'Upcoming' ? 'bg-amber-100 text-amber-800' : 'bg-neutral-100 text-neutral-700'
+                          }`}>
+                            {rec.status}
+                          </span>
+                          <span className="text-xs font-black text-green-700 bg-green-50 border border-green-200/80 px-2.5 py-0.5 rounded-lg">
+                            {rec.totalPosts} Posts
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="font-extrabold text-base text-neutral-900 leading-snug">{rec.title}</h4>
+                        <p className="text-xs font-bold text-neutral-500 mt-0.5">🏢 {rec.department}</p>
+                      </div>
+
+                      <div className="text-xs text-neutral-600 bg-neutral-50 p-3 rounded-xl border border-neutral-100 space-y-1.5">
+                        <p><strong>Eligibility:</strong> {rec.eligibility}</p>
+                        <p><strong>Age Limit:</strong> {rec.ageLimit}</p>
+                        <p><strong>Pay Scale:</strong> {rec.salary}</p>
+                        <p><strong>Last Date:</strong> <span className="text-red-600 font-black">{rec.lastDate}</span></p>
+                      </div>
+
+                      {rec.brief && (
+                        <p className="text-xs text-neutral-500 line-clamp-2">{rec.brief}</p>
+                      )}
+                    </div>
+
+                    <div className="pt-3 border-t border-neutral-100 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        {rec.applyUrl && (
+                          <a href={rec.applyUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-red-600 font-bold hover:underline flex items-center gap-1">
+                            <span>Apply Link</span>
+                            <LinkIcon className="w-3 h-3" />
+                          </a>
+                        )}
+                        {rec.notificationUrl && (
+                          <a href={rec.notificationUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-neutral-600 font-bold hover:underline flex items-center gap-1">
+                            <span>PDF Notice</span>
+                            <Download className="w-3 h-3" />
+                          </a>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setEditingRecruitment(rec)}
+                          className="p-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                          title="Edit Recruitment Details"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline text-[11px]">Edit</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRecruitment(rec.id)}
+                          className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                          title="Delete Notice"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         )}
 
-        {/* TAB 5: BLOGS OVERVIEW */}
+        {/* TAB 5: BLOGS & EXAM GUIDES MANAGEMENT */}
         {activeTab === 'blogs' && (
-          <div className="mt-6 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {blogs.map((b) => (
-                <div key={b.id} className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-3">
-                  <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-0.5 rounded">
-                    {b.category}
-                  </span>
-                  <h4 className="font-extrabold text-sm text-neutral-900 line-clamp-2">{b.title}</h4>
-                  <p className="text-xs text-neutral-500 line-clamp-2">{b.excerpt}</p>
-                  <div className="pt-2 border-t border-neutral-100 flex items-center justify-between text-xs">
-                    <span className="text-neutral-400">{b.publishedAt}</span>
-                    <Link href={`/blog/${b.slug}`} className="text-red-600 font-bold hover:underline">
-                      Read Live
-                    </Link>
-                  </div>
+          <div className="mt-6 space-y-6">
+            {/* Header & Controls */}
+            <div className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <div className="relative w-full sm:w-72">
+                  <Search className="w-4 h-4 text-neutral-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={blogSearch}
+                    onChange={(e) => setBlogSearch(e.target.value)}
+                    placeholder="Search articles, syllabus, pattern..."
+                    className="w-full pl-9 pr-4 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900 focus:ring-2 focus:ring-red-600 focus:outline-none"
+                  />
                 </div>
-              ))}
+
+                <select
+                  value={blogCategoryFilter}
+                  onChange={(e) => setBlogCategoryFilter(e.target.value)}
+                  className="w-full sm:w-48 px-3 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-800 focus:ring-2 focus:ring-red-600 focus:outline-none"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="Guide">Guide</option>
+                  <option value="Exam Pattern">Exam Pattern</option>
+                  <option value="Physical">Physical Standards</option>
+                  <option value="Salary">Salary & Perks</option>
+                  <option value="Syllabus">Syllabus & Books</option>
+                  <option value="Results">Cut Off & Results</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <button
+                  onClick={fetchBlogs}
+                  className="p-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl transition-colors"
+                  title="Reload blog posts"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => {
+                    setBlogForm(initialBlogForm);
+                    setIsAddingBlog(true);
+                  }}
+                  className="flex-1 md:flex-none px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Article / Guide</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Blogs Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {blogs
+                .filter((b) => {
+                  const matchCat = blogCategoryFilter === 'all' || b.category === blogCategoryFilter;
+                  const matchSearch =
+                    (b.title || '').toLowerCase().includes(blogSearch.toLowerCase()) ||
+                    (b.excerpt || '').toLowerCase().includes(blogSearch.toLowerCase()) ||
+                    (b.content || '').toLowerCase().includes(blogSearch.toLowerCase()) ||
+                    (b.tags || []).some(t => t.toLowerCase().includes(blogSearch.toLowerCase()));
+                  return matchCat && matchSearch;
+                })
+                .map((b) => (
+                  <div key={b.id || b.slug} className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm space-y-3 flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-[11px] font-black text-red-600 bg-red-50 border border-red-200/60 px-2.5 py-0.5 rounded-lg">
+                          {b.category}
+                        </span>
+                        <span className="text-[11px] font-bold text-neutral-400">
+                          ⏱️ {b.readTime}
+                        </span>
+                      </div>
+
+                      <h4 className="font-extrabold text-sm text-neutral-900 line-clamp-2 leading-snug">{b.title}</h4>
+                      
+                      <p className="text-xs text-neutral-500 line-clamp-3 leading-relaxed">{b.excerpt}</p>
+
+                      {b.tags && b.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pt-1">
+                          {b.tags.slice(0, 3).map((tag, idx) => (
+                            <span key={idx} className="text-[10px] font-medium bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded">
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs">
+                      <span className="text-[11px] text-neutral-400 font-medium">📅 {b.publishedAt}</span>
+
+                      <div className="flex items-center gap-1.5">
+                        <Link href={`/blog/${b.slug}`} target="_blank" className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold flex items-center gap-1" title="Read Live Article">
+                          <Eye className="w-3.5 h-3.5" />
+                        </Link>
+                        <button
+                          onClick={() => setEditingBlog(b)}
+                          className="p-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-lg text-xs font-bold"
+                          title="Edit Article"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteBlog(b.id || b.slug)}
+                          className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-bold"
+                          title="Delete Article"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         )}
@@ -1967,6 +2576,752 @@ export default function AdminDashboardPage() {
                     <>
                       <CheckCircle2 className="w-4 h-4" />
                       <span>Update Photo Details</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD / EDIT COURSE */}
+      {(isAddingCourse || editingCourse) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 space-y-6 relative max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <div>
+                <span className="text-xs font-mono font-bold text-red-600 uppercase">
+                  {editingCourse ? 'Edit Course Record' : 'Create New Course'}
+                </span>
+                <h3 className="text-xl font-black text-neutral-900">
+                  {editingCourse ? editingCourse.title : 'Add Course to Catalog'}
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setIsAddingCourse(false);
+                  setEditingCourse(null);
+                }}
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCourse} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Course Title (English) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingCourse ? editingCourse.title : courseForm.title}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, title: val });
+                      else setCourseForm({ ...courseForm, title: val, slug: val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') });
+                    }}
+                    placeholder="e.g. Fireman Government Recruitment Batch"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white text-xs font-bold text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Hindi Title (Optional)</label>
+                  <input
+                    type="text"
+                    value={editingCourse ? (editingCourse.hindiTitle || '') : (courseForm.hindiTitle || '')}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, hindiTitle: val });
+                      else setCourseForm({ ...courseForm, hindiTitle: val });
+                    }}
+                    placeholder="e.g. फायरमैन सरकारी भर्ती स्पेशल बैच"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">URL Slug / Identifier *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingCourse ? editingCourse.slug : courseForm.slug}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, slug: val });
+                      else setCourseForm({ ...courseForm, slug: val });
+                    }}
+                    placeholder="e.g. fireman-course"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white text-xs font-mono text-neutral-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Category *</label>
+                  <select
+                    value={editingCourse ? editingCourse.category : courseForm.category}
+                    onChange={(e) => {
+                      const val = e.target.value as Course['category'];
+                      if (editingCourse) setEditingCourse({ ...editingCourse, category: val });
+                      else setCourseForm({ ...courseForm, category: val });
+                    }}
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 text-xs font-bold text-neutral-900"
+                  >
+                    <option value="fireman">Fireman (6 Months)</option>
+                    <option value="fire-guard">Fire Guard</option>
+                    <option value="operator">Pump Operator</option>
+                    <option value="diploma">Safety Diploma</option>
+                    <option value="physical">Physical Ground Training</option>
+                    <option value="special">Specialized Rescue</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Course Fees / Fee Structure</label>
+                  <input
+                    type="text"
+                    value={editingCourse ? (editingCourse.fees || '') : (courseForm.fees || '')}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, fees: val });
+                      else setCourseForm({ ...courseForm, fees: val });
+                    }}
+                    placeholder="e.g. ₹18,500 or ₹24,000 (Installment Available)"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white text-xs font-bold text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Duration</label>
+                  <input
+                    type="text"
+                    value={editingCourse ? editingCourse.duration : courseForm.duration}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, duration: val });
+                      else setCourseForm({ ...courseForm, duration: val });
+                    }}
+                    placeholder="e.g. 6 Months (Theory + Ground)"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Training Mode</label>
+                  <select
+                    value={editingCourse ? editingCourse.mode : courseForm.mode}
+                    onChange={(e) => {
+                      const val = e.target.value as Course['mode'];
+                      if (editingCourse) setEditingCourse({ ...editingCourse, mode: val });
+                      else setCourseForm({ ...courseForm, mode: val });
+                    }}
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900"
+                  >
+                    <option value="Offline + Ground">Offline + Ground</option>
+                    <option value="Offline">Offline</option>
+                    <option value="Online + Ground">Online + Ground</option>
+                    <option value="Physical Only">Physical Only</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Eligibility Criteria</label>
+                  <input
+                    type="text"
+                    value={editingCourse ? editingCourse.eligibility : courseForm.eligibility}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, eligibility: val });
+                      else setCourseForm({ ...courseForm, eligibility: val });
+                    }}
+                    placeholder="e.g. 10th / 12th Pass (Any Recognized Board)"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Badge / Tag (Optional)</label>
+                  <input
+                    type="text"
+                    value={editingCourse ? (editingCourse.badge || '') : (courseForm.badge || '')}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, badge: val });
+                      else setCourseForm({ ...courseForm, badge: val });
+                    }}
+                    placeholder="e.g. Most Popular, 100% Placement"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Total Seats</label>
+                  <input
+                    type="number"
+                    value={editingCourse ? editingCourse.totalSeats : courseForm.totalSeats}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, totalSeats: val });
+                      else setCourseForm({ ...courseForm, totalSeats: val });
+                    }}
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Available Seats</label>
+                  <input
+                    type="number"
+                    value={editingCourse ? editingCourse.availableSeats : courseForm.availableSeats}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, availableSeats: val });
+                      else setCourseForm({ ...courseForm, availableSeats: val });
+                    }}
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Short Summary Description *</label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={editingCourse ? editingCourse.shortDescription : courseForm.shortDescription}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, shortDescription: val });
+                      else setCourseForm({ ...courseForm, shortDescription: val });
+                    }}
+                    placeholder="Brief 2-line summary shown on cards..."
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 resize-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Full Course Description & Overview</label>
+                  <textarea
+                    rows={3}
+                    value={editingCourse ? editingCourse.description : courseForm.description}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingCourse) setEditingCourse({ ...editingCourse, description: val });
+                      else setCourseForm({ ...courseForm, description: val });
+                    }}
+                    placeholder="Detailed curriculum overview..."
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-neutral-100 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAddingCourse(false);
+                    setEditingCourse(null);
+                  }}
+                  className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-extrabold rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingCourse}
+                  className="px-6 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black rounded-xl shadow-lg shadow-red-600/30 flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  {isSavingCourse ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Saving Course...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{editingCourse ? 'Save Changes' : 'Publish Course'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD / EDIT RECRUITMENT NOTICE */}
+      {(isAddingRecruitment || editingRecruitment) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 space-y-6 relative max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <div>
+                <span className="text-xs font-mono font-bold text-red-600 uppercase">
+                  {editingRecruitment ? 'Edit Recruitment Notice' : 'New Job / Recruitment Alert'}
+                </span>
+                <h3 className="text-xl font-black text-neutral-900">
+                  {editingRecruitment ? editingRecruitment.title : 'Publish Recruitment Notice'}
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setIsAddingRecruitment(false);
+                  setEditingRecruitment(null);
+                }}
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveRecruitment} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Recruitment Notice Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingRecruitment ? editingRecruitment.title : recruitmentForm.title}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, title: val });
+                      else setRecruitmentForm({ ...recruitmentForm, title: val });
+                    }}
+                    placeholder="e.g. Delhi Fire Service (DFS) Fireman 1200+ Posts Recruitment 2025"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white text-xs font-bold text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Department / Organization *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingRecruitment ? editingRecruitment.department : recruitmentForm.department}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, department: val });
+                      else setRecruitmentForm({ ...recruitmentForm, department: val });
+                    }}
+                    placeholder="e.g. DSSSB / Delhi Fire Service"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">State / Region *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingRecruitment ? editingRecruitment.state : recruitmentForm.state}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, state: val });
+                      else setRecruitmentForm({ ...recruitmentForm, state: val });
+                    }}
+                    placeholder="e.g. Delhi, Rajasthan, All India"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Total Vacancy Posts</label>
+                  <input
+                    type="number"
+                    value={editingRecruitment ? editingRecruitment.totalPosts : recruitmentForm.totalPosts}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 0;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, totalPosts: val });
+                      else setRecruitmentForm({ ...recruitmentForm, totalPosts: val });
+                    }}
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Notice Status</label>
+                  <select
+                    value={editingRecruitment ? editingRecruitment.status : recruitmentForm.status}
+                    onChange={(e) => {
+                      const val = e.target.value as RecruitmentNotice['status'];
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, status: val });
+                      else setRecruitmentForm({ ...recruitmentForm, status: val });
+                    }}
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900"
+                  >
+                    <option value="Active">🟢 Active (Form Open)</option>
+                    <option value="Upcoming">🟡 Upcoming (Notification Out)</option>
+                    <option value="Closed">🔴 Closed / Expired</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Salary / Pay Scale</label>
+                  <input
+                    type="text"
+                    value={editingRecruitment ? editingRecruitment.salary : recruitmentForm.salary}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, salary: val });
+                      else setRecruitmentForm({ ...recruitmentForm, salary: val });
+                    }}
+                    placeholder="e.g. Level-3 (₹21,700 - ₹69,100)"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Age Limit</label>
+                  <input
+                    type="text"
+                    value={editingRecruitment ? editingRecruitment.ageLimit : recruitmentForm.ageLimit}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, ageLimit: val });
+                      else setRecruitmentForm({ ...recruitmentForm, ageLimit: val });
+                    }}
+                    placeholder="e.g. 18 - 27 Years"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Application Start Date</label>
+                  <input
+                    type="text"
+                    value={editingRecruitment ? editingRecruitment.applicationStartDate : recruitmentForm.applicationStartDate}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, applicationStartDate: val });
+                      else setRecruitmentForm({ ...recruitmentForm, applicationStartDate: val });
+                    }}
+                    placeholder="e.g. 15 Jan 2025"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Last Date to Apply *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingRecruitment ? editingRecruitment.lastDate : recruitmentForm.lastDate}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, lastDate: val });
+                      else setRecruitmentForm({ ...recruitmentForm, lastDate: val });
+                    }}
+                    placeholder="e.g. 28 Feb 2025"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-red-600"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Eligibility Details</label>
+                  <input
+                    type="text"
+                    value={editingRecruitment ? editingRecruitment.eligibility : recruitmentForm.eligibility}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, eligibility: val });
+                      else setRecruitmentForm({ ...recruitmentForm, eligibility: val });
+                    }}
+                    placeholder="e.g. 10th / 12th Pass with Fire Operator / Fireman Training Certificate"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Official Apply Online Link</label>
+                  <input
+                    type="url"
+                    value={editingRecruitment ? (editingRecruitment.applyUrl || '') : (recruitmentForm.applyUrl || '')}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, applyUrl: val });
+                      else setRecruitmentForm({ ...recruitmentForm, applyUrl: val });
+                    }}
+                    placeholder="https://dsssb.delhi.gov.in"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-mono text-neutral-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Official Notification PDF Link</label>
+                  <input
+                    type="url"
+                    value={editingRecruitment ? (editingRecruitment.notificationUrl || '') : (recruitmentForm.notificationUrl || '')}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, notificationUrl: val });
+                      else setRecruitmentForm({ ...recruitmentForm, notificationUrl: val });
+                    }}
+                    placeholder="https://example.com/notification.pdf"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-mono text-neutral-800"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Brief Overview & Highlights</label>
+                  <textarea
+                    rows={2}
+                    value={editingRecruitment ? editingRecruitment.brief : recruitmentForm.brief}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingRecruitment) setEditingRecruitment({ ...editingRecruitment, brief: val });
+                      else setRecruitmentForm({ ...recruitmentForm, brief: val });
+                    }}
+                    placeholder="Short brief on vacancies, exam structure or special notes..."
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-neutral-100 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAddingRecruitment(false);
+                    setEditingRecruitment(null);
+                  }}
+                  className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-extrabold rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingRecruitment}
+                  className="px-6 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black rounded-xl shadow-lg shadow-red-600/30 flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  {isSavingRecruitment ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Saving Notice...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{editingRecruitment ? 'Save Changes' : 'Publish Notice'}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ADD / EDIT BLOG & EXAM GUIDE */}
+      {(isAddingBlog || editingBlog) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 space-y-6 relative max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <div>
+                <span className="text-xs font-mono font-bold text-red-600 uppercase">
+                  {editingBlog ? 'Edit Blog / Exam Guide' : 'Publish New Guide Article'}
+                </span>
+                <h3 className="text-xl font-black text-neutral-900">
+                  {editingBlog ? editingBlog.title : 'New Blog / Exam Guide Post'}
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setIsAddingBlog(false);
+                  setEditingBlog(null);
+                }}
+                className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveBlog} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Article Title (English) *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingBlog ? editingBlog.title : blogForm.title}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingBlog) setEditingBlog({ ...editingBlog, title: val });
+                      else setBlogForm({ ...blogForm, title: val, slug: val.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') });
+                    }}
+                    placeholder="e.g. Complete Fireman Physical Fitness Test Strategy & Running Guide"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl focus:ring-2 focus:ring-red-600 focus:bg-white text-xs font-bold text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Hindi Title (Optional)</label>
+                  <input
+                    type="text"
+                    value={editingBlog ? (editingBlog.hindiTitle || '') : (blogForm.hindiTitle || '')}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingBlog) setEditingBlog({ ...editingBlog, hindiTitle: val });
+                      else setBlogForm({ ...blogForm, hindiTitle: val });
+                    }}
+                    placeholder="e.g. फायरमैन फिजिकल टेस्ट और रनिंग तैयारी टिप्स"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">URL Slug *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingBlog ? editingBlog.slug : blogForm.slug}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingBlog) setEditingBlog({ ...editingBlog, slug: val });
+                      else setBlogForm({ ...blogForm, slug: val });
+                    }}
+                    placeholder="e.g. fireman-physical-test-guide"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-mono text-neutral-800"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Category *</label>
+                  <select
+                    value={editingBlog ? editingBlog.category : blogForm.category}
+                    onChange={(e) => {
+                      const val = e.target.value as BlogPost['category'];
+                      if (editingBlog) setEditingBlog({ ...editingBlog, category: val });
+                      else setBlogForm({ ...blogForm, category: val });
+                    }}
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-900"
+                  >
+                    <option value="Guide">Guide</option>
+                    <option value="Exam Pattern">Exam Pattern</option>
+                    <option value="Physical">Physical Standards</option>
+                    <option value="Salary">Salary & Perks</option>
+                    <option value="Syllabus">Syllabus & Books</option>
+                    <option value="Results">Cut Off & Results</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Author Name</label>
+                  <input
+                    type="text"
+                    value={editingBlog ? editingBlog.author : blogForm.author}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingBlog) setEditingBlog({ ...editingBlog, author: val });
+                      else setBlogForm({ ...blogForm, author: val });
+                    }}
+                    placeholder="e.g. Chief Fire Instructor"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Read Time</label>
+                  <input
+                    type="text"
+                    value={editingBlog ? editingBlog.readTime : blogForm.readTime}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingBlog) setEditingBlog({ ...editingBlog, readTime: val });
+                      else setBlogForm({ ...blogForm, readTime: val });
+                    }}
+                    placeholder="e.g. 5 min read"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Published Date</label>
+                  <input
+                    type="text"
+                    value={editingBlog ? editingBlog.publishedAt : blogForm.publishedAt}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingBlog) setEditingBlog({ ...editingBlog, publishedAt: val });
+                      else setBlogForm({ ...blogForm, publishedAt: val });
+                    }}
+                    placeholder="e.g. 2026-09-30"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Tags (Comma Separated)</label>
+                  <input
+                    type="text"
+                    value={editingBlog ? editingBlog.tags.join(', ') : blogForm.tags.join(', ')}
+                    onChange={(e) => {
+                      const tags = e.target.value.split(',').map(s => s.trim()).filter(Boolean);
+                      if (editingBlog) setEditingBlog({ ...editingBlog, tags });
+                      else setBlogForm({ ...blogForm, tags });
+                    }}
+                    placeholder="e.g. Fireman Recruitment, Physical Ground, Delhi DFS"
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Short Excerpt / Teaser *</label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={editingBlog ? editingBlog.excerpt : blogForm.excerpt}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingBlog) setEditingBlog({ ...editingBlog, excerpt: val });
+                      else setBlogForm({ ...blogForm, excerpt: val });
+                    }}
+                    placeholder="Brief 2-line summary shown on blog cards..."
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 resize-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block mb-1 text-xs font-black text-neutral-900">Full Article Content *</label>
+                  <textarea
+                    rows={5}
+                    required
+                    value={editingBlog ? editingBlog.content : blogForm.content}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (editingBlog) setEditingBlog({ ...editingBlog, content: val });
+                      else setBlogForm({ ...blogForm, content: val });
+                    }}
+                    placeholder="Write your full guide / article content here..."
+                    className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-900 resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-neutral-100 flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAddingBlog(false);
+                    setEditingBlog(null);
+                  }}
+                  className="px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-extrabold rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingBlog}
+                  className="px-6 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black rounded-xl shadow-lg shadow-red-600/30 flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  {isSavingBlog ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Saving Article...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{editingBlog ? 'Save Changes' : 'Publish Article'}</span>
                     </>
                   )}
                 </button>

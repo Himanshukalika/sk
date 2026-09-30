@@ -39,19 +39,15 @@ export default function StudentRegistrationModal() {
   });
 
   useEffect(() => {
-    // Show on initial visit if user hasn't dismissed it in this session or recently
-    const hasSeen = localStorage.getItem('sk_student_reg_shown_v1');
-    if (!hasSeen) {
-      const timer = setTimeout(() => {
-        setIsOpen(true);
-      }, 700);
-      return () => clearTimeout(timer);
-    }
+    // Show on every page refresh / load
+    const timer = setTimeout(() => {
+      setIsOpen(true);
+    }, 600);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleClose = () => {
     setIsOpen(false);
-    localStorage.setItem('sk_student_reg_shown_v1', 'true');
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -89,7 +85,6 @@ export default function StudentRegistrationModal() {
 
       setLeadId(data.leadId || `SK-${Date.now().toString().slice(-4)}`);
       setIsSuccess(true);
-      localStorage.setItem('sk_student_reg_shown_v1', 'true');
     } catch (err: unknown) {
       const errTxt = err instanceof Error ? err.message : 'Something went wrong.';
       setErrorMessage(errTxt);
@@ -102,15 +97,15 @@ export default function StudentRegistrationModal() {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto"
+      className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200 overflow-y-auto"
       onClick={handleClose}
     >
       <div 
-        className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-neutral-100 overflow-hidden relative my-6 max-h-[94vh] flex flex-col animate-in zoom-in-95 duration-200"
+        className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-neutral-100 overflow-hidden relative my-auto max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Flame Accent Line */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-red-600 via-amber-500 to-red-600" />
+        <div className="h-1.5 w-full bg-gradient-to-r from-red-600 via-amber-500 to-red-600 shrink-0" />
 
         {/* Header Banner */}
         <div className="bg-neutral-950 text-white p-5 sm:p-6 relative overflow-hidden">
