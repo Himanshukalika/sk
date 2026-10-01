@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   X,
   Globe,
@@ -23,10 +24,11 @@ interface InitialWelcomeModalProps {
 }
 
 export default function InitialWelcomeModal({ onOpenAdmission }: InitialWelcomeModalProps) {
+  const pathname = usePathname();
   const { language, setLanguage, isInitialModalOpen, setIsInitialModalOpen, t } = useLanguage();
   const [selectedLang, setSelectedLang] = useState<Language>(language);
 
-  if (!isInitialModalOpen) return null;
+  if (pathname?.startsWith('/admin') || !isInitialModalOpen) return null;
 
   const handleConfirm = () => {
     setLanguage(selectedLang);

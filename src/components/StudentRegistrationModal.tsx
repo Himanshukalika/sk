@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   X,
   Sparkles,
@@ -20,6 +21,9 @@ import AcademyLogo from './AcademyLogo';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function StudentRegistrationModal() {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith('/admin');
+
   const { language, t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,12 +43,20 @@ export default function StudentRegistrationModal() {
   });
 
   useEffect(() => {
+    if (isAdmin) {
+      setIsOpen(false);
+      return;
+    }
     // Show on every page refresh / load
     const timer = setTimeout(() => {
       setIsOpen(true);
     }, 600);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isAdmin]);
+
+  if (isAdmin) {
+    return null;
+  }
 
   const handleClose = () => {
     setIsOpen(false);
