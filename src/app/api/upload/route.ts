@@ -16,7 +16,6 @@ export async function POST(request: Request) {
     }
 
     // Check file type: allow images and PDF documents
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
     const isAllowed = file.type.startsWith('image/') || file.type === 'application/pdf';
 
     if (!isAllowed) {
@@ -30,18 +29,24 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(bytes);
 
     // Sanitize filename
-    const fileExt = path.extname(file.name) || (file.type === 'application/pdf' ? '.pdf' : '.jpg');
+    const fileExt = path.extname(file.name) || (file.type === 'application/pdf' ? '.pdf' : '.webp');
     const fileName = `doc_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${fileExt}`;
 
-    // 1. Try uploading to Supabase Storage if configured
+    // 1. Try uploading to Supabase Storage if configured (with 2.5s timeout)
     if (isSupabaseConfigured() && supabase) {
       try {
-        const { data, error } = await supabase.storage
+        const uploadPromise = supabase.storage
           .from('admission-documents')
           .upload(fileName, buffer, {
             contentType: file.type,
             upsert: true
           });
+
+        const timeoutPromise = new Promise<{ data: null; error: Error }>((_, reject) =>
+          setTimeout(() => reject(new Error('Supabase upload timeout')), 2500)
+        );
+
+        const { data, error } = await Promise.race([uploadPromise, timeoutPromise]) as any;
 
         if (!error && data) {
           const { data: publicUrlData } = supabase.storage
@@ -58,7 +63,7 @@ export async function POST(request: Request) {
           }
         }
       } catch (supabaseErr) {
-        console.warn('Supabase storage upload failed, using local upload fallback:', supabaseErr);
+        console.warn('Supabase storage upload skipped/failed, using local/data URL fallback:', supabaseErr);
       }
     }
 
@@ -81,10 +86,10 @@ export async function POST(request: Request) {
         url: localUrl
       });
     } catch (fsErr) {
-      console.warn('Filesystem upload failed, converting to Base64 Data URL fallback:', fsErr);
+      console.warn('Filesystem upload failed, using Data URL fallback:', fsErr);
 
       // 3. Base64 Data URL fallback
-      const base64Data = `data:${file.type};base64,${buffer.toString('base64')}`;
+      const base64Data = `data:${file.type || 'image/jpeg'};base64,${buffer.toString('base64')}`;
       return NextResponse.json({
         success: true,
         message: 'File processed successfully!',
@@ -92,11 +97,12 @@ export async function POST(request: Request) {
         url: base64Data
       });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error uploading file:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to upload document' },
+      { success: false, error: error?.message || 'Failed to upload document' },
       { status: 500 }
     );
   }
 }
+

@@ -188,16 +188,65 @@ export default function AdminDashboardPage() {
     date: ''
   });
 
+  // Client-side image compressor before upload
+  const compressImage = async (file: File, maxWidth = 1280, maxHeight = 1280, quality = 0.82): Promise<File> => {
+    if (typeof window === 'undefined' || !file.type.startsWith('image/')) {
+      return file;
+    }
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          let width = img.width;
+          let height = img.height;
+          if (width > maxWidth || height > maxHeight) {
+            if (width > height) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return resolve(file);
+          ctx.drawImage(img, 0, 0, width, height);
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) return resolve(file);
+              const compressed = new File([blob], file.name.replace(/\.[^/.]+$/, '') + '.webp', {
+                type: 'image/webp',
+                lastModified: Date.now()
+              });
+              resolve(compressed);
+            },
+            'image/webp',
+            quality
+          );
+        };
+        img.onerror = () => resolve(file);
+      };
+      reader.onerror = () => resolve(file);
+    });
+  };
+
   // Direct File Upload Handler
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, isEditMode = false) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    const file = files[0];
+    const originalFile = files[0];
 
     setIsUploadingPhoto(true);
     try {
+      const fileToUpload = await compressImage(originalFile);
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', fileToUpload);
 
       const res = await fetch('/api/upload', {
         method: 'POST',
@@ -214,9 +263,9 @@ export default function AdminDashboardPage() {
       } else {
         alert(data.error || 'Failed to upload photo');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Photo upload failed');
+      alert('Photo upload failed: ' + (err?.message || 'Network error'));
     } finally {
       setIsUploadingPhoto(false);
     }
@@ -270,8 +319,12 @@ export default function AdminDashboardPage() {
 
   const handleCreatePhoto = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!photoForm.title || !photoForm.imageUrl) {
-      alert('Please fill in Title and provide an Image');
+    if (!photoForm.title) {
+      alert('Please fill in Title / Caption for the photo');
+      return;
+    }
+    if (!photoForm.imageUrl) {
+      alert('Please select and upload a photo first!');
       return;
     }
     setIsSavingPhoto(true);
@@ -281,7 +334,12 @@ export default function AdminDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(photoForm)
       });
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server returned status ${res.status}`);
+      }
       if (data.success) {
         alert('Photo published successfully to gallery!');
         setIsAddingPhoto(false);
@@ -300,9 +358,9 @@ export default function AdminDashboardPage() {
       } else {
         alert(data.error || 'Failed to add photo');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Failed to add photo');
+      alert('Failed to add photo: ' + (err?.message || 'Server error'));
     } finally {
       setIsSavingPhoto(false);
     }
@@ -318,7 +376,12 @@ export default function AdminDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingPhoto)
       });
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        throw new Error(`Server returned status ${res.status}`);
+      }
       if (data.success) {
         alert('Photo updated successfully!');
         setEditingPhoto(null);
@@ -326,9 +389,9 @@ export default function AdminDashboardPage() {
       } else {
         alert(data.error || 'Failed to update photo');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Failed to update photo');
+      alert('Failed to update photo: ' + (err?.message || 'Server error'));
     } finally {
       setIsSavingPhoto(false);
     }
@@ -580,8 +643,9 @@ export default function AdminDashboardPage() {
     if (!files || files.length === 0) return;
     setIsUploadingThumbnail(true);
     try {
+      const compressed = await compressImage(files[0]);
       const formData = new FormData();
-      formData.append('file', files[0]);
+      formData.append('file', compressed);
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData
@@ -600,9 +664,9 @@ export default function AdminDashboardPage() {
       } else {
         alert(data.error || 'Failed to upload thumbnail');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('Thumbnail upload failed');
+      alert('Thumbnail upload failed: ' + (err?.message || 'Network error'));
     } finally {
       setIsUploadingThumbnail(false);
     }

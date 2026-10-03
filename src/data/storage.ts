@@ -4,8 +4,10 @@ import { Course, AdmissionLead, ContactEnquiry, RecruitmentNotice, BlogPost, Gal
 import { INITIAL_COURSES, INITIAL_RECRUITMENTS, INITIAL_BLOGS, INITIAL_GALLERY, INITIAL_SETTINGS } from './initialData';
 import { isSupabaseConfigured, supabase, mapRowToGalleryItem, mapGalleryItemToRow } from '@/lib/supabase';
 
-const DATA_DIR = path.join(process.cwd(), '.data');
-const DB_FILE = path.join(DATA_DIR, 'db.json');
+const PRIMARY_DATA_DIR = path.join(process.cwd(), '.data');
+const PRIMARY_DB_FILE = path.join(PRIMARY_DATA_DIR, 'db.json');
+const TMP_DATA_DIR = path.join('/tmp', 'sk_data');
+const TMP_DB_FILE = path.join(TMP_DATA_DIR, 'db.json');
 
 interface DatabaseSchema {
   leads: AdmissionLead[];
@@ -17,107 +19,124 @@ interface DatabaseSchema {
   settings?: SiteSettings;
 }
 
+// In-memory cache to ensure speed and resilience in serverless runtimes
+let cachedDb: DatabaseSchema | null = null;
+
 function ensureDb(): DatabaseSchema {
-  try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-
-    if (!fs.existsSync(DB_FILE)) {
-      const initialDb: DatabaseSchema = {
-        leads: [
-          {
-            id: 'lead-1',
-            fullName: 'Aman Verma',
-            fatherName: 'Rajesh Verma',
-            mobile: '9876543210',
-            alternateMobile: '9876543211',
-            email: 'aman.verma@example.com',
-            dob: '2002-05-14',
-            gender: 'Male',
-            qualification: '12th Pass (Science)',
-            address: 'Ward No 4, Main Market, Rewari',
-            state: 'Haryana',
-            city: 'Rewari',
-            selectedCourse: 'fire-guard-course',
-            hostelRequired: 'Yes',
-            notes: 'Interested in physical ground training from next week.',
-            status: 'New',
-            createdAt: new Date().toISOString()
-          },
-          {
-            id: 'lead-2',
-            fullName: 'Ravi Kumar Gurjar',
-            fatherName: 'Ramprasad Gurjar',
-            mobile: '9812345678',
-            email: 'ravi.gurjar@example.com',
-            dob: '2001-11-20',
-            gender: 'Male',
-            qualification: '10th + HMV Driving License',
-            address: 'Village Dholpur',
-            state: 'Rajasthan',
-            city: 'Dholpur',
-            selectedCourse: 'fire-operator-course',
-            hostelRequired: 'Yes',
-            notes: 'Possesses 3 years heavy driving license.',
-            status: 'Contacted',
-            createdAt: new Date(Date.now() - 86400000).toISOString()
-          }
-        ],
-        contacts: [
-          {
-            id: 'contact-1',
-            name: 'Pooja Choudhary',
-            phone: '9988776655',
-            email: 'pooja.c@example.com',
-            subject: 'Hostel and batch timings inquiry',
-            message: 'Hello, are there separate hostel and physical training batches available for female candidates?',
-            createdAt: new Date().toISOString(),
-            status: 'New'
-          }
-        ],
-        courses: INITIAL_COURSES,
-        recruitments: INITIAL_RECRUITMENTS,
-        blogs: INITIAL_BLOGS,
-        gallery: INITIAL_GALLERY,
-        settings: INITIAL_SETTINGS
-      };
-      fs.writeFileSync(DB_FILE, JSON.stringify(initialDb, null, 2), 'utf-8');
-      return initialDb;
-    }
-
-    const fileContent = fs.readFileSync(DB_FILE, 'utf-8');
-    const parsed = JSON.parse(fileContent);
-    return {
-      leads: parsed.leads || [],
-      contacts: parsed.contacts || [],
-      courses: parsed.courses?.length ? parsed.courses : INITIAL_COURSES,
-      recruitments: parsed.recruitments?.length ? parsed.recruitments : INITIAL_RECRUITMENTS,
-      blogs: parsed.blogs?.length ? parsed.blogs : INITIAL_BLOGS,
-      gallery: parsed.gallery?.length ? parsed.gallery : INITIAL_GALLERY,
-      settings: parsed.settings || INITIAL_SETTINGS
-    };
-  } catch (error) {
-    console.error('Failed to read or initialize DB file, falling back to memory/defaults:', error);
-    return {
-      leads: [],
-      contacts: [],
-      courses: INITIAL_COURSES,
-      recruitments: INITIAL_RECRUITMENTS,
-      blogs: INITIAL_BLOGS,
-      gallery: INITIAL_GALLERY
-    };
+  if (cachedDb) {
+    return cachedDb;
   }
+
+  // 1. Try reading from primary local DB file
+  try {
+    if (fs.existsSync(PRIMARY_DB_FILE)) {
+      const fileContent = fs.readFileSync(PRIMARY_DB_FILE, 'utf-8');
+      const parsed = JSON.parse(fileContent);
+      cachedDb = {
+        leads: parsed.leads || [],
+        contacts: parsed.contacts || [],
+        courses: parsed.courses?.length ? parsed.courses : INITIAL_COURSES,
+        recruitments: parsed.recruitments?.length ? parsed.recruitments : INITIAL_RECRUITMENTS,
+        blogs: parsed.blogs?.length ? parsed.blogs : INITIAL_BLOGS,
+        gallery: parsed.gallery?.length ? parsed.gallery : INITIAL_GALLERY,
+        settings: parsed.settings || INITIAL_SETTINGS
+      };
+      return cachedDb;
+    }
+  } catch (err) {
+    console.warn('Primary DB file read error:', err);
+  }
+
+  // 2. Try reading from serverless /tmp DB file
+  try {
+    if (fs.existsSync(TMP_DB_FILE)) {
+      const fileContent = fs.readFileSync(TMP_DB_FILE, 'utf-8');
+      const parsed = JSON.parse(fileContent);
+      cachedDb = {
+        leads: parsed.leads || [],
+        contacts: parsed.contacts || [],
+        courses: parsed.courses?.length ? parsed.courses : INITIAL_COURSES,
+        recruitments: parsed.recruitments?.length ? parsed.recruitments : INITIAL_RECRUITMENTS,
+        blogs: parsed.blogs?.length ? parsed.blogs : INITIAL_BLOGS,
+        gallery: parsed.gallery?.length ? parsed.gallery : INITIAL_GALLERY,
+        settings: parsed.settings || INITIAL_SETTINGS
+      };
+      return cachedDb;
+    }
+  } catch (err) {
+    console.warn('TMP DB file read error:', err);
+  }
+
+  // 3. Fallback to Initial Seeds
+  const initialDb: DatabaseSchema = {
+    leads: [
+      {
+        id: 'lead-1',
+        fullName: 'Aman Verma',
+        fatherName: 'Rajesh Verma',
+        mobile: '9876543210',
+        alternateMobile: '9876543211',
+        email: 'aman.verma@example.com',
+        dob: '2002-05-14',
+        gender: 'Male',
+        qualification: '12th Pass (Science)',
+        address: 'Ward No 4, Main Market, Rewari',
+        state: 'Haryana',
+        city: 'Rewari',
+        selectedCourse: 'fire-guard-course',
+        hostelRequired: 'Yes',
+        notes: 'Interested in physical ground training from next week.',
+        status: 'New',
+        createdAt: new Date().toISOString()
+      }
+    ],
+    contacts: [
+      {
+        id: 'contact-1',
+        name: 'Pooja Choudhary',
+        phone: '9988776655',
+        email: 'pooja.c@example.com',
+        subject: 'Hostel and batch timings inquiry',
+        message: 'Hello, are there separate hostel and physical training batches available for female candidates?',
+        createdAt: new Date().toISOString(),
+        status: 'New'
+      }
+    ],
+    courses: INITIAL_COURSES,
+    recruitments: INITIAL_RECRUITMENTS,
+    blogs: INITIAL_BLOGS,
+    gallery: INITIAL_GALLERY,
+    settings: INITIAL_SETTINGS
+  };
+
+  cachedDb = initialDb;
+  saveDb(initialDb);
+  return initialDb;
 }
 
 function saveDb(data: DatabaseSchema): void {
+  cachedDb = data;
+  const jsonStr = JSON.stringify(data, null, 2);
+
+  // Try writing to primary directory
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    if (!fs.existsSync(PRIMARY_DATA_DIR)) {
+      fs.mkdirSync(PRIMARY_DATA_DIR, { recursive: true });
     }
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Failed to save to DB file:', error);
+    fs.writeFileSync(PRIMARY_DB_FILE, jsonStr, 'utf-8');
+    return;
+  } catch {
+    // Primary write failed (e.g. read-only serverless filesystem)
+  }
+
+  // Fallback to /tmp in serverless environments
+  try {
+    if (!fs.existsSync(TMP_DATA_DIR)) {
+      fs.mkdirSync(TMP_DATA_DIR, { recursive: true });
+    }
+    fs.writeFileSync(TMP_DB_FILE, jsonStr, 'utf-8');
+  } catch (tmpErr) {
+    console.warn('Fallback write to /tmp failed, memory cache preserved:', tmpErr);
   }
 }
 
